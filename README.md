@@ -1,4 +1,4 @@
-# recks
+# Recks 🐶
 
 ```jsx
 import { timer } from 'rxjs';

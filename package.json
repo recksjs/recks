@@ -1,0 +1,24 @@
+{
+  "name": "recks",
+  "version": "0.0.0",
+  "description": "Stream driven framework",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/recksjs/recks.git"
+  },
+  "keywords": [
+    "framework",
+    "rxjs",
+    "jsx"
+  ],
+  "author": "Kostiantyn Palchyk",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/recksjs/recks/issues"
+  },
+  "homepage": "https://github.com/recksjs/recks#readme"
+}
