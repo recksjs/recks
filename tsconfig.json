@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "declaration": true,
+        "outDir": "./dist/",
+        "noImplicitAny": false,
+        "noUnusedLocals": false,
+        "moduleResolution": "node",
+        "module": "commonjs",
+        "target": "es2015",
+        "sourceMap": true,
+        "downlevelIteration": true,
+        "lib": [
+            "dom",
+            "dom.iterable"
+        ]
+    }
+}
