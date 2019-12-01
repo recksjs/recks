@@ -1,7 +1,13 @@
-import { Subject, ReplaySubject } from 'rxjs';
-import { takeUntil, take, startWith, pairwise } from 'rxjs/operators';
+// RxJS import hack {{{
+// import { Subject, ReplaySubject } from 'rxjs';
+// import { takeUntil, take } from 'rxjs/operators';
+import { take } from 'rxjs/internal/operators/take';
+import { takeUntil } from 'rxjs/internal/operators/takeUntil';
+import { ReplaySubject } from 'rxjs/internal/ReplaySubject';
+import { Subject } from 'rxjs/internal/Subject';
+// }}}
+import { createComponent, IChild, IComponent } from './Component';
 import { isElement } from './Element';
-import { IChild, createComponent, IComponent } from './Component';
 
 export interface IDynamicEntry {
     update$: Subject<IChild>;

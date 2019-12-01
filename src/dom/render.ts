@@ -1,8 +1,28 @@
-import { of, pipe, combineLatest, ReplaySubject, Subject, Observable } from 'rxjs';
-import { pairwise, switchMap, tap, distinctUntilChanged, startWith, map, takeUntil } from 'rxjs/operators';
-import { createDomElement, updateDomElement } from './DomElement';
+// RxJS import hack {{{
+// Due to closurejs bundling of rxjs imports (which are peer dependencies) to
+// `require(rxjs)` & `require(rxjs/operators)`. That bundling eliminates import
+// optimisation and whole rxjs is imported. Therefore internal functions and
+// operators are imported directly from rxjs internals which might not be
+// reliable through npm versions following imports were substituted
+// import { of, pipe, combineLatest, ReplaySubject, Subject, Observable } from 'rxjs';
+// import { pairwise, switchMap, tap, distinctUntilChanged, startWith, map, takeUntil } from 'rxjs/operators';
+import { Observable } from 'rxjs/internal/Observable';
+import { combineLatest } from 'rxjs/internal/observable/combineLatest';
+import { of } from 'rxjs/internal/observable/of';
+import { distinctUntilChanged } from 'rxjs/internal/operators/distinctUntilChanged';
+import { map } from 'rxjs/internal/operators/map';
+import { pairwise } from 'rxjs/internal/operators/pairwise';
+import { startWith } from 'rxjs/internal/operators/startWith';
+import { switchMap } from 'rxjs/internal/operators/switchMap';
+import { takeUntil } from 'rxjs/internal/operators/takeUntil';
+import { tap } from 'rxjs/internal/operators/tap';
+import { ReplaySubject } from 'rxjs/internal/ReplaySubject';
+import { Subject } from 'rxjs/internal/Subject';
+import { pipe } from 'rxjs/internal/util/pipe';
+// }}}
 import { createComponent, IComponent } from '../engine/Component';
 import { ElementKeyType } from '../engine/Element';
+import { createDomElement, updateDomElement } from './DomElement';
 
 export const render = (definition, target) => {
     const root = createComponent(definition);

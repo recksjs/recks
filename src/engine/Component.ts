@@ -1,7 +1,25 @@
-import { isObservable, Subject, combineLatest, of, ReplaySubject, EMPTY, Observable, from } from 'rxjs';
-import { startWith, pairwise, map, switchMap, takeUntil, take, filter, withLatestFrom } from 'rxjs/operators';
-import { IElement, IProps } from './Element';
+// RxJS import hack {{{
+// import { Subject, combineLatest, of, ReplaySubject, EMPTY, Observable, from } from 'rxjs';
+// import { startWith, pairwise, map, switchMap, takeUntil, take, filter } from 'rxjs/operators';
+import { EMPTY } from 'rxjs/internal/observable/empty';
+import { from } from 'rxjs/internal/observable/from';
+import { Observable } from 'rxjs/internal/Observable';
+import { combineLatest } from 'rxjs/internal/observable/combineLatest';
+import { of } from 'rxjs/internal/observable/of';
+import { filter } from 'rxjs/internal/operators/filter';
+import { map } from 'rxjs/internal/operators/map';
+import { pairwise } from 'rxjs/internal/operators/pairwise';
+import { startWith } from 'rxjs/internal/operators/startWith';
+import { switchMap } from 'rxjs/internal/operators/switchMap';
+import { take } from 'rxjs/internal/operators/take';
+import { takeUntil } from 'rxjs/internal/operators/takeUntil';
+import { ReplaySubject } from 'rxjs/internal/ReplaySubject';
+import { Subject } from 'rxjs/internal/Subject';
+import { isObservable } from 'rxjs/internal/util/isObservable';
+// }}}
 import { DynamicEntry, IDynamicEntry } from './DynamicEntry';
+import { IElement, IProps } from './Element';
+
 
 // A component listen to definition updates
 // and maps that to self updates and children updates
