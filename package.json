@@ -1,11 +1,12 @@
 {
   "name": "recks",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Stream driven framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "webpack"
+    "build": "webpack",
+    "start": "webpack --config webpack/dev.config.js"
   },
   "repository": {
     "type": "git",

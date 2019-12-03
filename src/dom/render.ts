@@ -122,9 +122,8 @@ function compileComponent(component: IComponent) : Observable<ICompiledComponent
             switchMap(result => compileComponent(result))
         )
     } else if (component.type == 'array') {
-        // NOTE: array update is suboptimal:
-        //       when an array is updated
-        //       we generate a new DOM element each time
+        // NOTE: this code block is similar to Array Component logic
+        // TODO: refactor
 
         const HTMLElementStreams = new Map<ElementKeyType, { component: IComponent, destroy$: Subject<void>, result$: Observable<IArrayChildRenderElement> }>();
 
@@ -132,28 +131,31 @@ function compileComponent(component: IComponent) : Observable<ICompiledComponent
             startWith(null),
             pairwise(),
             switchMap(([prev, curr]) => {
+                // shortcut
+                // if curr array is empty
+                if (curr.length == 0) {
+                    HTMLElementStreams.clear();
+                    return of([]);
+                }
+
                 // removing obsolete keys
-                if (prev && prev.length) {
-                    for (let i = 0; i < curr.length; i++) {
+                if (prev && prev.length != 0) {
+                    for (let prevIndex = 0; prevIndex < prev.length; prevIndex++) {
                         let shouldRemove = true;
-                        const currKey = curr[i].key;
+                        const prevKey = prev[prevIndex].key;
 
-                        if (!HTMLElementStreams.has(currKey)) {
-                            continue;
-                        }
-
-                        for (let j = 0; j < prev.length; j++) {
-                            if (currKey == prev[j].key) {
+                        for (let currIndex = 0; currIndex < curr.length; currIndex++) {
+                            if (prevKey == curr[currIndex].key) {
                                 shouldRemove = false;
                                 break;
                             }
                         }
 
                         if (shouldRemove) {
-                            const domStream = HTMLElementStreams.get(currKey);
+                            const domStream = HTMLElementStreams.get(prevKey);
                             domStream.component.destroy$.next(void 0);
                             domStream.destroy$.next(void 0);
-                            HTMLElementStreams.delete(currKey);
+                            HTMLElementStreams.delete(prevKey);
                         }
                     }
                 }

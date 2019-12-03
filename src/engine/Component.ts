@@ -257,7 +257,18 @@ function createArrayComponent () : IArrayComponent {
         startWith(null),
         pairwise(),
         switchMap(([prev, curr])=> {
+            // NOTE: this code block is similar to Array Rendering logic
+            // TODO: refactor
 
+            // shortcut
+            // if curr array is empty -- just return empty array
+            if (curr.length == 0) {
+                dynamicEntries.clear();
+                return of([]);
+            }
+
+            // shortcut
+            // if all elements (keys) are the same -- just push an update to them
             if (prev && prev.length == curr.length && prev.every((p, i) => p.props.key == curr[i].props.key)) {
                 curr.forEach(definition => {
                     const key = definition.props.key;
@@ -268,26 +279,22 @@ function createArrayComponent () : IArrayComponent {
             }
 
             // removing obsolete keys
-            if (prev && prev.length) {
-                for (let i = 0; i < curr.length; i++) {
+            if (prev && prev.length != 0) {
+                for (let prevIndex = 0; prevIndex < prev.length; prevIndex++) {
                     let shouldRemove = true;
-                    const currKey = curr[i].props.key;
+                    const prevKey = prev[prevIndex].props.key;
 
-                    if (!dynamicEntries.has(currKey)) {
-                        continue;
-                    }
-
-                    for (let j = 0; j < prev.length; j++) {
-                        if (currKey == prev[j].props.key) {
+                    for (let currKey = 0; currKey < curr.length; currKey++) {
+                        if (prevKey == curr[currKey].props.key) {
                             shouldRemove = false;
                             break;
                         }
                     }
 
                     if (shouldRemove) {
-                        const dynamicEntry = dynamicEntries.get(currKey);
+                        const dynamicEntry = dynamicEntries.get(prevKey);
                         dynamicEntry.destroy$.next(void 0);
-                        dynamicEntries.delete(currKey);
+                        dynamicEntries.delete(prevKey);
                     }
                 }
             }
