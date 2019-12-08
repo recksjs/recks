@@ -364,13 +364,6 @@ function renderDomChildNodesPipe(target: HTMLElement) {
                                 //       - it was replaced or wasnt added at all
                                 //       - a key occures two or more times in the array
                                 console.error(e);
-                                console.log('currChild', currChild);
-                                console.log('j', j);
-                                console.log('/-');
-                                console.log('entriesThatStay', entriesThatStay);
-                                console.log('k', k);
-                                console.log('/-');
-                                console.log('insertBeforeNode', insertBeforeNode);
                             }
 
                             insertBeforeNode = currChild[j].renderElement.htmlElement;
