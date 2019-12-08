@@ -15,7 +15,9 @@ npm start
 
 Use this [online sandbox](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?fontsize=14&hidenavigation=1&theme=dark)
 
-Read more in this intro article: https://dev.to/kosich/recks-rxjs-based-framework-23h5
+## About
+
+Intro article: https://dev.to/kosich/recks-rxjs-based-framework-23h5
 
 ## Examples
 
