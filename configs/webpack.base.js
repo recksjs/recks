@@ -1,5 +1,4 @@
 const path = require('path');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
     entry: './src/index.ts',
@@ -15,8 +14,16 @@ module.exports = {
         rules: [
             {
                 test: /.ts$/,
-                use: 'ts-loader',
-                exclude: /node_modules/
+                exclude: /node_modules/,
+                use: [
+                    {
+                        loader: 'ts-loader',
+                        options: {
+                            configFile: 'configs/tsconfig.esm.json'
+                        }
+
+                    }
+                ]
             },
         ]
     },
@@ -40,8 +47,5 @@ module.exports = {
 
             callback();
         }
-    ],
-    plugins: [
-        new CleanWebpackPlugin()
     ]
 };

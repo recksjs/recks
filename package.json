@@ -1,12 +1,22 @@
 {
   "name": "recks",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Stream driven framework",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "es2015": "./dist/es2015/index.js",
+  "types": "./dist/types/index.d.ts",
+  "sideEffects": false,
   "scripts": {
-    "build": "webpack",
-    "start": "webpack --config webpack/dev.config.js"
+    "start": "webpack --config configs/webpack.dev.js",
+    "clean": "rimraf temp dist",
+    "build": "npm run build:esm && npm run build:es2015 && npm run build:cjs && npm run build:types && npm run build:umd && npm run build:umd:min",
+    "build:esm": "tsc -p configs/tsconfig.esm.json",
+    "build:es2015": "tsc -p configs/tsconfig.es2015.json",
+    "build:cjs": "tsc -p configs/tsconfig.cjs.json",
+    "build:types": "tsc -p configs/tsconfig.types.json",
+    "build:umd": "webpack --config configs/webpack.build.js -o dist/recks.js",
+    "build:umd:min": "webpack --config configs/webpack.build.min.js -o dist/recks.min.js"
   },
   "repository": {
     "type": "git",
@@ -25,6 +35,7 @@
   "homepage": "https://github.com/recksjs/recks#readme",
   "devDependencies": {
     "clean-webpack-plugin": "3.0.0",
+    "rimraf": "3.0.0",
     "rxjs": "6.5.3",
     "ts-loader": "6.2.1",
     "typescript": "3.7.2",
@@ -33,11 +44,12 @@
     "webpack-merge": "4.2.2"
   },
   "peerDependencies": {
-    "rxjs": "^6.5.3"
+    "rxjs": "^6.5.3",
+    "tslib": "^1.9.0"
   },
   "files": [
-      "dist",
-      "LICENSE",
-      "README.md"
+    "dist",
+    "LICENSE",
+    "README.md"
   ]
 }

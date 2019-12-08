@@ -1,3 +1,3 @@
-const prodConfig = require('./webpack/prod.config');
+const prodConfig = require('./configs/webpack.build.min');
 
 module.exports = prodConfig;

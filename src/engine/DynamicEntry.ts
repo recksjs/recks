@@ -1,11 +1,5 @@
-// RxJS import hack {{{
-// import { Subject, ReplaySubject } from 'rxjs';
-// import { takeUntil, take } from 'rxjs/operators';
-import { take } from 'rxjs/internal/operators/take';
-import { takeUntil } from 'rxjs/internal/operators/takeUntil';
-import { ReplaySubject } from 'rxjs/internal/ReplaySubject';
-import { Subject } from 'rxjs/internal/Subject';
-// }}}
+import { ReplaySubject, Subject } from 'rxjs';
+import { take, takeUntil } from 'rxjs/operators';
 import { createComponent, IChild, IComponent } from './Component';
 import { isElement } from './Element';
 
