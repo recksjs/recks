@@ -11,7 +11,9 @@ npm i
 npm start
 ```
 
-Or you can start with this [online sandbox](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?fontsize=14&hidenavigation=1&theme=dark)
+**Or**
+
+Use this [online sandbox](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?fontsize=14&hidenavigation=1&theme=dark)
 
 Read more in this intro article: https://dev.to/kosich/recks-rxjs-based-framework-23h5
 
@@ -26,7 +28,9 @@ function App() {
   return <h1>Hello world!</h1>
 }
 ```
-### 2. A Timer [[sandbox](https://codesandbox.io/s/recks-example-timer-fjyvj?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)]
+### 2. A Timer
+
+[online sandbox](https://codesandbox.io/s/recks-example-timer-fjyvj?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
 
 ```jsx
 import Recks from 'recks';
@@ -42,7 +46,9 @@ function Timer() {
 }
 ```
 
-### 3. A Greeting [[sandbox](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)]
+### 3. A Greeting
+
+[online sandbox](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
 
 ```jsx
 import Recks from 'recks';
@@ -66,7 +72,9 @@ function Greeting() {
 }
 ```
 
-### 3. A Counter [[sandbox](https://codesandbox.io/s/recks-example-counter-lw29e?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)]
+### 3. A Counter
+
+[online sandbox](https://codesandbox.io/s/recks-example-counter-lw29e?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
 
 ```jsx
 import Recks from 'recks';
@@ -89,7 +97,9 @@ function Counter () {
 ```
 
 
-### 4. DOM Refs [[sandbox](https://codesandbox.io/s/recks-example-input-ref-ye5so?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)]
+### 4. DOM Refs
+
+[online sandbox](https://codesandbox.io/s/recks-example-input-ref-ye5so?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
 
 ```jsx
 import Recks from 'recks';
@@ -118,7 +128,9 @@ function TextInputWithFocusButton(props$, { destroy$ }) {
 }
 ```
 
-### 5. Subcomponents [[sandbox](https://codesandbox.io/s/recks-example-cat-mouse-hnr41?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)]
+### 5. Subcomponents
+
+[online sandbox](https://codesandbox.io/s/recks-example-cat-mouse-hnr41?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
 
 ```jsx
 import Recks from 'recks';
