@@ -6,6 +6,7 @@
   "module": "./dist/esm/index.js",
   "es2015": "./dist/es2015/index.js",
   "types": "./dist/types/index.d.ts",
+  "unpkg": "./dist/recks.min.js",
   "sideEffects": false,
   "scripts": {
     "start": "webpack --config configs/webpack.dev.js",
