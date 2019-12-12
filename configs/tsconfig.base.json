@@ -13,7 +13,10 @@
             "es5",
             "dom",
             "dom.iterable",
-            "ES2015"
+            "ES2015",
+            "ES2016",
+            "ES2016.Array.Include",
+            "ES2017.Object"
         ],
         "types": [ "node" ]
     }

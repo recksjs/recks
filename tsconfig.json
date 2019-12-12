@@ -1,6 +1,8 @@
 {
     "extends": "./configs/tsconfig.base.json",
     "compilerOptions": {
-        "types" : ["node", "jest"]
+        "jsx": "react",
+        "jsxFactory": "Recks.createElement",
+        "types" : ["jest"]
     }
 }

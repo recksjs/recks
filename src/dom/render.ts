@@ -189,7 +189,7 @@ function renderDomChildNodesPipe(target: HTMLElement) {
             // intial render
             // creates a fragment and appends the fragment to parent
             if (!prevChildren || !prevChildren.length) {
-                const fragment = new DocumentFragment();
+                const fragment = window.document.createDocumentFragment();
                 for(let currChild of currChildren) {
                     if (currChild) {
                         if (Array.isArray(currChild)) {
@@ -279,7 +279,7 @@ function renderDomChildNodesPipe(target: HTMLElement) {
                             continue;
                         }
 
-                        const documentFragment = new DocumentFragment();
+                        const documentFragment = window.document.createDocumentFragment();
                         for (let j = 0; j < currChild.length; j++) {
                             documentFragment.appendChild(currChild[j].renderElement.htmlElement);
                             if (isHTMLRenderElement(currChild[j].renderElement)) {
