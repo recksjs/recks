@@ -12,7 +12,8 @@
         "lib": [
             "es5",
             "dom",
-            "dom.iterable"
+            "dom.iterable",
+            "ES2015"
         ],
         "types": [ "node" ]
     }

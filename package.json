@@ -17,7 +17,9 @@
     "build:cjs": "tsc -p configs/tsconfig.cjs.json",
     "build:types": "tsc -p configs/tsconfig.types.json",
     "build:umd": "webpack --config configs/webpack.build.js -o dist/recks.js",
-    "build:umd:min": "webpack --config configs/webpack.build.min.js -o dist/recks.min.js"
+    "build:umd:min": "webpack --config configs/webpack.build.min.js -o dist/recks.min.js",
+    "test": "jest",
+    "test:watch": "jest --watchAll"
   },
   "repository": {
     "type": "git",
@@ -35,10 +37,12 @@
   },
   "homepage": "https://github.com/recksjs/recks#readme",
   "devDependencies": {
+    "@types/jest": "^24.0.23",
     "clean-webpack-plugin": "3.0.0",
-    "jest": "^24.9.0",
+    "jest": "24.9.0",
     "rimraf": "3.0.0",
     "rxjs": "6.5.3",
+    "ts-jest": "24.2.0",
     "ts-loader": "6.2.1",
     "typescript": "3.7.2",
     "webpack": "4.41.2",
