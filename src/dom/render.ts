@@ -3,6 +3,7 @@ import { distinctUntilChanged, map, pairwise, startWith, switchMap, takeUntil, t
 import { createComponent, IComponent } from '../engine/Component';
 import { ElementKeyType } from '../engine/Element';
 import { createDomElement, updateAttribute } from './DomElement';
+import { isSubject } from '../helpers/isSubject';
 
 export const render = (definition, target) => {
     const root = createComponent(definition);
@@ -70,8 +71,6 @@ function compileComponent(component: IComponent) : Observable<ICompiledComponent
         //    for each child udpate -- render component( target = domElement )
         const htmlElement = createDomElement(component.definition);
 
-        // component.change$.subscribe(console.log)
-
         const splitPropsOperator = () => {
             const propsStreams = new Map<string, Subject<any>>();
 
@@ -112,8 +111,8 @@ function compileComponent(component: IComponent) : Observable<ICompiledComponent
             flatMap(({ key, value }) => {
                 return value.pipe(
                     distinctUntilChanged(),
-                    switchMap((v:any) => {
-                        if (v != null && typeof v.next == 'function') {
+                    switchMap(v => {
+                        if (isSubject(v)) {
                             return of(v);
                         }
 

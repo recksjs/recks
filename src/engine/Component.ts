@@ -78,10 +78,6 @@ const createStaticComponent = (element) : IStaticComponent => {
     const destroy$ = new Subject<void>();
     const element$ = new Subject<HTMLElement>();
 
-    update$.subscribe((upd) => {
-        console.log('UPDATE', upd)
-    })
-
     const dynamicChildren = element.props.children
         .map(() => DynamicEntry());
 

@@ -1,6 +1,5 @@
 import { Recks } from '../../src/index';
-import { of, timer, Subject } from 'rxjs';
-import { mapTo } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 describe('Props', () => {
     let rootElement: HTMLElement;
@@ -43,12 +42,12 @@ describe('Props', () => {
             }, 30)
         });
 
-        test.only('Dynamic output props', () => {
+        test('Dynamic output props', () => {
             const onClick$ = {
                 next: jest.fn()
             };
 
-            const App = (_, { destroy$ }) => {
+            const App = () => {
                 return <button onClick={ onClick$ }>Click me!</button>;
             }
 
