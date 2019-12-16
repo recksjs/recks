@@ -34,5 +34,5 @@ export const createComponent = (child: IChild): IComponent => {
         return createFnComponent(child);
     }
 
-    throw 'Unknown child';
+    throw 'Unknown type of child';
 }

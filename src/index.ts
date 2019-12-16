@@ -1,5 +1,5 @@
 import { createElement } from './engine/Element';
-import { render } from './dom/render';
+import { render } from './engine/render';
 
 const Recks = { createElement, render };
 
