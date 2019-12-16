@@ -17,9 +17,13 @@ export const createDomElement = (definition: IElement<string>) => {
 
         if (isEventAttr(key)) {
             const eventName = getEventFromAttr(key);
-            htmlElement.addEventListener(eventName, value);
+            if (typeof value == 'function') {
+                htmlElement.addEventListener(eventName, value);
+            }
         } else {
-            htmlElement.setAttribute(key, value);
+            if (value != null) {
+                htmlElement.setAttribute(key, value);
+            }
         }
     });
 
@@ -27,6 +31,26 @@ export const createDomElement = (definition: IElement<string>) => {
 }
 
 // updates DOMNode props, compared to prevProps
+export const updateAttribute = (htmlElement, key, prevValue, currValue) => {
+    if (isEventAttr(key)) {
+        const eventName = getEventFromAttr(key);
+        if (typeof prevValue == 'function') {
+            htmlElement.removeEventListener(eventName, prevValue as EventListener);
+        }
+
+        if (typeof currValue == 'function') {
+            htmlElement.addEventListener(eventName, currValue as EventListener);
+        }
+    } else {
+        if (currValue == void 0) {
+            htmlElement.removeAttribute(key);
+        } else {
+            htmlElement.setAttribute(key, currValue);
+        }
+    }
+}
+
+
 export const updateDomElement = (prevProps, currProps, htmlElement: HTMLElement) => {
     // update prev props
     Object.entries(prevProps).forEach(([key, prevValue]) => {

@@ -74,9 +74,13 @@ interface IStaticComponent extends IBasicComponent {
 }
 
 const createStaticComponent = (element) : IStaticComponent => {
-    const update$ = new Subject<IElement<string>>();
+    const update$ = new ReplaySubject<IElement<string>>(1);
     const destroy$ = new Subject<void>();
     const element$ = new Subject<HTMLElement>();
+
+    update$.subscribe((upd) => {
+        console.log('UPDATE', upd)
+    })
 
     const dynamicChildren = element.props.children
         .map(() => DynamicEntry());

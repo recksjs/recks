@@ -19,7 +19,8 @@
     "build:umd": "webpack --config configs/webpack.build.js -o dist/recks.js",
     "build:umd:min": "webpack --config configs/webpack.build.min.js -o dist/recks.min.js",
     "test": "jest",
-    "test:watch": "jest --watchAll"
+    "test:watch": "jest --watch",
+    "test:debug": "node --inspect node_modules/.bin/jest --watch --runInBand"
   },
   "repository": {
     "type": "git",
