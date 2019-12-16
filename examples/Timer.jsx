@@ -1,4 +1,4 @@
-import Re from '../index';
+import Re from '../src/index';
 import { timer } from 'rxjs';
 
 function Timer () {
