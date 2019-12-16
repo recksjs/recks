@@ -1,6 +1,6 @@
 import { ReplaySubject, Subject } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
-import { createComponent, IChild, IComponent } from './Component';
+import { createComponent, IChild, IComponent } from './component';
 import { isElement } from './Element';
 
 export interface IDynamicEntry {

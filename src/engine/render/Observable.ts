@@ -1,5 +1,5 @@
 import { switchMap } from 'rxjs/operators';
-import { IObservableComponent } from '../Component/Observable';
+import { IObservableComponent } from '../component/Observable';
 import { renderComponent } from '.';
 
 // watch dyn root comp

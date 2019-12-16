@@ -1,5 +1,5 @@
 import { Observable, Subject } from 'rxjs';
-import { IChild } from './Component';
+import { IChild } from './component';
 
 const ELEMENT_TYPE = 're-element';
 

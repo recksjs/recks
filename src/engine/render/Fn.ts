@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { IFnComponent } from '../Component/Fn';
+import { IFnComponent } from '../component/Fn';
 import { ICompiledComponent, renderComponent } from '.';
 
 // watch dyn root comp

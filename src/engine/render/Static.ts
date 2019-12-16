@@ -3,7 +3,7 @@ import { distinctUntilChanged, pairwise, startWith, switchMap, tap, flatMap } fr
 import { createDomElement, updateAttribute } from '../../dom/DomElement';
 import { isSubject } from '../../helpers/isSubject';
 import { UpdateDomChildNodesPipe } from '../../dom/UpdateDomChildNodesPipe';
-import { IStaticComponent } from '../Component/Static';
+import { IStaticComponent } from '../component/Static';
 import { ICompiledComponent, renderComponent } from '.';
 
 export interface IHTMLRenderElement {

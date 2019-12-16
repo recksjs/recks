@@ -1,8 +1,8 @@
 import { combineLatest, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { map, pairwise, startWith, switchMap, takeUntil } from 'rxjs/operators';
-import { IComponent } from '../Component';
+import { IComponent } from '../component';
 import { ElementKeyType } from '../Element';
-import { IArrayComponent } from '../Component/Array';
+import { IArrayComponent } from '../component/Array';
 import { IHTMLRenderElement } from './Static';
 import { renderComponent, ICompiledComponent } from '.';
 

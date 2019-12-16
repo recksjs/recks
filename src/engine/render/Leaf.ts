@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
-import { ILeafComponent } from '../Component/Leaf';
+import { ILeafComponent } from '../component/Leaf';
 import { ICompiledComponent } from '.';
 
 export interface ITextRenderElement {

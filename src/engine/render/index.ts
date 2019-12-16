@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { UpdateDomChildNodesPipe } from '../../dom/UpdateDomChildNodesPipe';
-import { createComponent, IComponent } from '../Component';
+import { createComponent, IComponent } from '../component';
 import { IArrayChildrenRenderElements, renderArray } from './Array';
 import { renderFn } from './Fn';
 import { ITextRenderElement, renderLeaf } from './Leaf';
