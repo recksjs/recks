@@ -1,4 +1,5 @@
 import { IElement } from "../engine/Element";
+import { isSubject } from '../helpers/isSubject';
 
 const PRESERVED_KEYS = ['children', 'key', 'ref'];
 
@@ -34,13 +35,19 @@ export const createDomElement = (definition: IElement<string>) => {
 export const updateAttribute = (htmlElement, key, prevValue, currValue) => {
     if (isEventAttr(key)) {
         const eventName = getEventFromAttr(key);
+
         if (typeof prevValue == 'function') {
             htmlElement.removeEventListener(eventName, prevValue as EventListener);
+        } else if(isSubject(prevValue)){
+            htmlElement.removeEventListener(eventName, prevValue.next);
         }
 
         if (typeof currValue == 'function') {
             htmlElement.addEventListener(eventName, currValue as EventListener);
+        } else if(isSubject(currValue)){
+            htmlElement.addEventListener(eventName, currValue.next);
         }
+
     } else {
         if (currValue == void 0) {
             htmlElement.removeAttribute(key);

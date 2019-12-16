@@ -1,5 +1,5 @@
 import { Recks } from '../../src/index';
-import { of, timer } from 'rxjs';
+import { of, timer, Subject } from 'rxjs';
 import { mapTo } from 'rxjs/operators';
 
 describe('Props', () => {
@@ -28,15 +28,10 @@ describe('Props', () => {
             expect(rootElement.children[0].getAttribute('title')).toBe('Yellow');
         });
 
-        // TODO: cover output props
-
-        test.only('Dynamic input props', (done) => {
+        test('Dynamic input props', (done) => {
             const App = () => {
                 const title$ = of('Green', 'Blue', 'Yellow');
                 return <div title={ title$ }>Submarine</div>;
-                // return timer(0, 10).pipe(
-                //     mapTo(<div title={ title$ }>Submarine</div>)
-                // )
             }
 
             Recks.render(<App />, rootElement);
@@ -47,6 +42,25 @@ describe('Props', () => {
                 done();
             }, 30)
         });
+
+        test.only('Dynamic output props', () => {
+            const onClick$ = {
+                next: jest.fn()
+            };
+
+            const App = (_, { destroy$ }) => {
+                return <button onClick={ onClick$ }>Click me!</button>;
+            }
+
+            Recks.render(<App />, rootElement);
+
+            const buttonElement = rootElement.children[0];
+            const event = document.createEvent("HTMLEvents");
+            event.initEvent('click', false, true);
+            buttonElement.dispatchEvent(event);
+
+            expect(onClick$.next.mock.calls.length).toBe(1);
+        })
 
     });
 
