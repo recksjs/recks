@@ -51,7 +51,9 @@ export function renderStatic(component: IStaticComponent) : Observable<IHTMLRend
                                 propsStreams.delete(key);
                             }
                         }
-                    }
+                    },
+                    error: observer.error,
+                    complete: observer.complete
                 })
             })
         }

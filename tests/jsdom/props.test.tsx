@@ -1,6 +1,6 @@
 import { Recks } from '../../src/index';
 import { of } from 'rxjs';
-import { map, pluck } from 'rxjs/operators';
+import { pluck } from 'rxjs/operators';
 
 describe('Props', () => {
     let rootElement: HTMLElement;
@@ -71,6 +71,15 @@ describe('Props', () => {
 
             Recks.render(<App />, rootElement);
             expect(rootElement.innerHTML).toBe('Morning');
+        });
+
+        test('Dynamic props', () => {
+            const Child = props$ => <div title={ props$.pipe(pluck('title')) } />
+            const title$ = of('Good', 'Morning');
+            const App = () => <Child $ title={ title$ } />
+
+            Recks.render(<App />, rootElement);
+            expect(rootElement.children[0].getAttribute('title')).toBe('Morning');
         });
     });
 

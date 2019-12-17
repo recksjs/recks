@@ -1,5 +1,5 @@
-import { from, isObservable, Observable, of, Subject } from 'rxjs';
-import { map, take, takeUntil } from 'rxjs/operators';
+import { from, isObservable, Observable, of, Subject, Subscription, ReplaySubject } from 'rxjs';
+import { map, take, takeUntil, share, groupBy, mergeMap, tap, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { DynamicEntry } from '../DynamicEntry';
 import { IElement } from '../Element';
 import { IBasicComponent, IComponent } from './index';
@@ -16,6 +16,47 @@ export function createFnComponent(definition): IFnComponent {
 
     const props$ = update$.pipe(
         map(update => update.props),
+        source$ => new Observable(observer => {
+            let propsStreamsMap: Map<string, IDynamicProp>;
+            let currSubscription = new Subscription();
+
+            const subscription = source$.subscribe({
+                next(props) {
+                    if (currSubscription){
+                        currSubscription.unsubscribe();
+                        subscription.remove(currSubscription);
+                    }
+
+                    const newProps = new Map(Object.entries(props));
+                    for(let [newKey, newValue] of newProps) {
+                        if (!propsStreamsMap.has(newKey)) {
+                            const dynamicProp = DynamicProp();
+                            propsStreamsMap.set(newKey, dynamicProp);
+                            subscription.add(dynamicProp.subscription);
+                        }
+
+                        propsStreamsMap.get(newKey).update$.next(newValue);
+                    }
+
+                    for (let [oldKey, oldValue] of propsStreamsMap) {
+                        if (newProps.has(oldKey)) {
+                            continue;
+                        }
+
+                        const obsoleteProp = propsStreamsMap.get(oldKey)
+                        obsoleteProp.destroy$.next(void 0);
+                        subscription.remove(obsoleteProp.subscription);
+                        propsStreamsMap.delete(oldKey);
+                    }
+
+                    propsStreamsMap.values
+                },
+                error: observer.error,
+                complete: observer.complete
+            })
+
+            return subscription;
+        }),
         takeUntil(destroy$),
     );
 
@@ -56,4 +97,30 @@ function asObservable(value) : Observable<unknown> {
     // (is an Element or a basic type)
     // throw otherwise
     return of(value);
+}
+
+interface IDynamicProp {
+    subscription: Subscription;
+    update$: Subject<any>;
+    result$: Observable<any>;
+    destroy$: Subject<void>;
+}
+
+function DynamicProp () : IDynamicProp {
+    const update$ = new Subject();
+    const destroy$ = new Subject<void>();
+    const result$ = new ReplaySubject(1);
+
+    const subscription = update$.pipe(
+        distinctUntilChanged(),
+        switchMap(x => isObservable(x) ? x : of(x)),
+        takeUntil(destroy$)
+    ).subscribe(result$);
+
+    return {
+        subscription,
+        update$,
+        result$,
+        destroy$,
+    }
 }
