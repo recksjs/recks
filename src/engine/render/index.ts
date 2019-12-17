@@ -36,9 +36,9 @@ export function renderComponent(component: IComponent) : Observable<ICompiledCom
     } else if (component.type == 'fn') {
         return renderFn(component)
     } else if (component.type == 'static') {
-        renderStatic(component);
+        return renderStatic(component);
     } else if (component.type == 'observable') {
-        renderObservable(component);
+        return renderObservable(component);
     } else if (component.type == 'array') {
         return renderArray(component);
     }

@@ -21,11 +21,11 @@ export function createFnComponent(definition): IFnComponent {
 
     const dynamicRoot = DynamicEntry();
 
-    destroy$.pipe(
-        take(1)
-    ).subscribe(dynamicRoot.destroy$);
+    const destroyTake1$ = destroy$.pipe(take(1));
+    destroyTake1$
+        .subscribe(dynamicRoot.destroy$);
 
-    const result = definition.type(props$, { destroy$: destroy$.pipe(take(1)) });
+    const result = definition.type(props$, { destroy$: destroyTake1$ });
 
     asObservable(result)
         .pipe(

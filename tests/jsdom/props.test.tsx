@@ -1,5 +1,6 @@
 import { Recks } from '../../src/index';
 import { of } from 'rxjs';
+import { map, pluck } from 'rxjs/operators';
 
 describe('Props', () => {
     let rootElement: HTMLElement;
@@ -61,6 +62,16 @@ describe('Props', () => {
             expect(onClick$.next.mock.calls.length).toBe(1);
         })
 
+    });
+
+    describe('Subcomponents', () => {
+        test('Static props', () => {
+            const Child = props$ => props$.pipe(pluck('title'));
+            const App = () => <Child title="Morning" />
+
+            Recks.render(<App />, rootElement);
+            expect(rootElement.innerHTML).toBe('Morning');
+        });
     });
 
 })

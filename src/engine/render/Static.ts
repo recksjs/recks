@@ -20,7 +20,7 @@ export const isHTMLRenderElement = (element: ICompiledComponent): element is IHT
 //    update domElement
 // subscribe to child updates
 //    for each child udpate -- render component( target = domElement )
-export function renderStatic(component: IStaticComponent) {
+export function renderStatic(component: IStaticComponent) : Observable<IHTMLRenderElement> {
     const htmlElement = createDomElement(component.definition);
 
     const splitPropsOperator = () => {
