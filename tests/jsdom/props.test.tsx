@@ -73,12 +73,17 @@ describe('Props', () => {
             expect(rootElement.innerHTML).toBe('Morning');
         });
 
-        test('Dynamic props', () => {
-            const Child = props$ => <div title={ props$.pipe(pluck('title')) } />
+        test.only('Dynamic props', () => {
+            const Child = props$ => {
+                const title$ = props$.pipe(pluck('title')); 
+                title$.subscribe(console.log);
+                return <div title={ title$ } >{ title$ }</div>
+            }
             const title$ = of('Good', 'Morning');
-            const App = () => <Child $ title={ title$ } />
+            const App = () => <Child title={ title$ } />
 
             Recks.render(<App />, rootElement);
+            console.log(rootElement.innerHTML);
             expect(rootElement.children[0].getAttribute('title')).toBe('Morning');
         });
     });

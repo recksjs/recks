@@ -31,8 +31,11 @@ export function renderStatic(component: IStaticComponent) : Observable<IHTMLRend
                 return source$.subscribe({
                     next: (props) => {
                         const currentProps = new Map(Object.entries(props));
+                        // TODO: use these keys from DOM constant
                         currentProps.delete('children');
                         currentProps.delete('key');
+                        currentProps.delete('ref');
+
                         for (let propEntry of currentProps) {
                             const [key, value] = propEntry;
                             if (!propsStreams.has(key)) {
@@ -66,15 +69,13 @@ export function renderStatic(component: IStaticComponent) : Observable<IHTMLRend
             return value.pipe(
                 distinctUntilChanged(),
                 switchMap(v => {
-                    if (isSubject(v)) {
-                        return of(v);
-                    }
+                    // TODO: check if this is an output property here
+                    // if its output -- it accepts subjects as is
+                    // if its input  -- it accepts subjects as observables
 
-                    if (isObservable(v)) {
-                        return v;
-                    }
-
-                    return of(v);
+                    return (isSubject(v) || !isObservable(v)) 
+                        ? of(v)
+                        : v
                 }),
                 startWith(void 0),
                 pairwise(),

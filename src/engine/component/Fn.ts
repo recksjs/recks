@@ -1,5 +1,5 @@
-import { from, isObservable, Observable, of, Subject, Subscription, ReplaySubject } from 'rxjs';
-import { map, take, takeUntil, share, groupBy, mergeMap, tap, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { combineLatest, from, isObservable, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { distinctUntilChanged, map, switchMap, take, takeUntil } from 'rxjs/operators';
 import { DynamicEntry } from '../DynamicEntry';
 import { IElement } from '../Element';
 import { IBasicComponent, IComponent } from './index';
@@ -17,8 +17,8 @@ export function createFnComponent(definition): IFnComponent {
     const props$ = update$.pipe(
         map(update => update.props),
         source$ => new Observable(observer => {
-            let propsStreamsMap: Map<string, IDynamicProp>;
-            let currSubscription = new Subscription();
+            const propsStreamsMap = new Map<string, IDynamicProp>();
+            let currSubscription: Subscription;
 
             const subscription = source$.subscribe({
                 next(props) {
@@ -43,13 +43,27 @@ export function createFnComponent(definition): IFnComponent {
                             continue;
                         }
 
-                        const obsoleteProp = propsStreamsMap.get(oldKey)
-                        obsoleteProp.destroy$.next(void 0);
-                        subscription.remove(obsoleteProp.subscription);
+                        oldValue.destroy$.next(void 0);
+                        subscription.remove(oldValue.subscription);
                         propsStreamsMap.delete(oldKey);
                     }
 
-                    propsStreamsMap.values
+                    const propKeys = [...propsStreamsMap.keys()];
+                    const propDynamicProps = propsStreamsMap.values();
+                    currSubscription = combineLatest(
+                        ...[...propDynamicProps].map(p => p.result$),
+                        (...values: any[]) => {
+                            return values.reduce((acc, curr, i) => {
+                                acc[propKeys[i]] = curr;
+                                return acc;
+                            }, {})
+                        }
+                    )
+                        .subscribe({
+                            next: observer.next
+                        });
+
+                    subscription.add(currSubscription);
                 },
                 error: observer.error,
                 complete: observer.complete
@@ -115,7 +129,9 @@ function DynamicProp () : IDynamicProp {
         distinctUntilChanged(),
         switchMap(x => isObservable(x) ? x : of(x)),
         takeUntil(destroy$)
-    ).subscribe(result$);
+    ).subscribe({
+        next: result$.next
+    });
 
     return {
         subscription,
