@@ -1,5 +1,6 @@
 import { Observable, Subject } from 'rxjs';
 import { IChild } from './component';
+import { isFunction } from '../helpers/isFunction';
 
 const ELEMENT_TYPE = 're-element';
 
@@ -20,7 +21,7 @@ export interface IProps {
 }
 
 const Element = <A extends Function|string>(type: A, props) : IElement<A> => {
-    const elementName = (typeof type == 'function') ? type['displayName'] || type.name : type;
+    const elementName = isFunction(type) ? type['displayName'] || type.name : type;
 
     return (
         { _n: elementName

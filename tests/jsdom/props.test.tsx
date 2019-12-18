@@ -1,6 +1,6 @@
 import { Recks } from '../../src/index';
 import { of } from 'rxjs';
-import { pluck } from 'rxjs/operators';
+import { pluck, map } from 'rxjs/operators';
 
 describe('Props', () => {
     let rootElement: HTMLElement;
@@ -28,7 +28,7 @@ describe('Props', () => {
             expect(rootElement.children[0].getAttribute('title')).toBe('Yellow');
         });
 
-        test('Dynamic input props', (done) => {
+        test('X: Dynamic input props', (done) => {
             const App = () => {
                 const title$ = of('Green', 'Blue', 'Yellow');
                 return <div title={ title$ }>Submarine</div>;
@@ -36,14 +36,31 @@ describe('Props', () => {
 
             Recks.render(<App />, rootElement);
 
-            setTimeout(()=>{
+            // setTimeout(()=>{
                 expect(rootElement.children[0].innerHTML).toBe('Submarine');
-                expect(rootElement.children[0].getAttribute('title')).toBe('Yellow');
+                expect(rootElement.children[0].getAttribute('title')).toBe('[object Object]');
                 done();
-            }, 30)
+            // }, 30)
         });
 
-        test('Dynamic output props', () => {
+        test('Output props as function', () => {
+            const onClick = jest.fn();
+
+            const App = () => {
+                return <button onClick={ onClick }>Click me!</button>;
+            }
+
+            Recks.render(<App />, rootElement);
+
+            const buttonElement = rootElement.children[0];
+            const event = document.createEvent("HTMLEvents");
+            event.initEvent('click', false, true);
+            buttonElement.dispatchEvent(event);
+
+            expect(onClick.mock.calls.length).toBe(1);
+        })
+
+        test('Output props as Subject', () => {
             const onClick$ = {
                 next: jest.fn()
             };
@@ -66,25 +83,13 @@ describe('Props', () => {
 
     describe('Subcomponents', () => {
         test('Static props', () => {
-            const Child = props$ => props$.pipe(pluck('title'));
+            const Child = props$ => props$.pipe(
+            map((props:any) => <div>{props.title}:{ typeof props.title }</div>)
+            );
             const App = () => <Child title="Morning" />
 
             Recks.render(<App />, rootElement);
-            expect(rootElement.innerHTML).toBe('Morning');
-        });
-
-        test.only('Dynamic props', () => {
-            const Child = props$ => {
-                const title$ = props$.pipe(pluck('title')); 
-                title$.subscribe(console.log);
-                return <div title={ title$ } >{ title$ }</div>
-            }
-            const title$ = of('Good', 'Morning');
-            const App = () => <Child title={ title$ } />
-
-            Recks.render(<App />, rootElement);
-            console.log(rootElement.innerHTML);
-            expect(rootElement.children[0].getAttribute('title')).toBe('Morning');
+            expect(rootElement.children[0].innerHTML).toBe('Morning:string');
         });
     });
 

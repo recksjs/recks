@@ -5,6 +5,9 @@ import { ILeafComponent, createLeafComponent, LeafComponentValueType } from './L
 import { IObservableComponent, createObservableComponent } from './Observable';
 import { IFnComponent, createFnComponent } from './Fn';
 import { IArrayComponent, createArrayComponent } from './Array';
+import { isThenable } from '../../helpers/isThenable';
+import { isFunction } from '../../helpers/isFunction';
+import { isArray } from '../../helpers/isArray';
 
 
 // A component listen to definition updates
@@ -24,13 +27,13 @@ export const createComponent = (child: IChild): IComponent => {
         return createLeafComponent(<LeafComponentValueType>child);
     } else if (isObservable(child)) {
         return createObservableComponent();
-    } else if (typeof (child as any).then == 'function') {
+    } else if (isThenable(child)) {
         return createObservableComponent();
-    } else if (Array.isArray(child)) {
+    } else if (isArray(child)) {
         return createArrayComponent();
     } else if (typeof child.type == 'string') {
         return createStaticComponent(child);
-    } else if (typeof child.type == 'function') {
+    } else if (isFunction(child.type)) {
         return createFnComponent(child);
     }
 

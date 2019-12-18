@@ -146,16 +146,20 @@ describe('Basic', () => {
             });
 
             describe('!!!UNSTABLE: Same ref updates!!!', () => {
-                // NOTE: currently neither arrays nor elements are cloned
-                // inside the engine. Therefore if an element or an array is
-                // reused among renders -- its imposible to compare new emission
-                // to older emission.
+                // NOTE: currently neither arrays nor elements are cloned inside
+                // the engine. Therefore if an element or an array is reused
+                // among renders -- its imposible to compare new emission to
+                // older emission. The engine should probably throw an exception
+                // in these cases.
                 //
-                // These tests ensure that behavior until engine is refactored
+                // These tests ensure that behavior until engine is refactored.
 
                 // vDOM
-                // Acts as expected:
+
+                // Current behavior:
                 // renews prop every time
+                // Expected behavior:
+                // should throw
                 test('vDOM props', () => {
                     const props = { title: '' };
                     const element = Recks.createElement('div', props, 1);
@@ -170,9 +174,13 @@ describe('Basic', () => {
                     expect(rootElement.children[0].getAttribute('title')).toBe('012');
                 });
 
-                // Subcomponent
-                // doesn't push to the child on next render
-                xtest('subcomponent', () => {
+                // SUBCOMPONENT
+
+                // Current behavior:
+                // doesn't push new updates
+                // Expected behavior:
+                // should throw
+                test('subcomponent', () => {
                     const Child = (props$: Observable<any>) => {
                         return props$.pipe(
                             map(props => <div title={ props.title }></div>)
@@ -193,8 +201,12 @@ describe('Basic', () => {
                     expect(rootElement.children[0].getAttribute('title')).toBe('0');
                 })
 
-                // Array
-                // wouldn't re-render
+                // ARRAY
+
+                // Current behavior:
+                // doesn't render new updates
+                // Expected behavior:
+                // should throw
                 test('array', () => {
                     const arr = [];
                     const App = () => of('a', 'b', 'c').pipe(

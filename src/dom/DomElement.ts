@@ -1,5 +1,7 @@
 import { IElement } from "../engine/Element";
 import { isSubject } from '../helpers/isSubject';
+import { Subject } from 'rxjs';
+import { isFunction } from '../helpers/isFunction';
 
 const PRESERVED_KEYS = ['children', 'key', 'ref'];
 
@@ -8,7 +10,7 @@ const EVENT_PREFIX_LENGTH = 2;
 const isEventAttr = (attrName: string) => EVENT_REGEXP.test(attrName);
 const getEventFromAttr = (attrName: string) => attrName.substring(EVENT_PREFIX_LENGTH).toLowerCase();
 
-export const createDomElement = (definition: IElement<string>) => {
+export function createDomElement(definition: IElement<string>) {
     const htmlElement = document.createElement(definition.type);
 
     Object.entries(definition.props).forEach(([key, value]) => {
@@ -18,47 +20,20 @@ export const createDomElement = (definition: IElement<string>) => {
 
         if (isEventAttr(key)) {
             const eventName = getEventFromAttr(key);
-            if (typeof value == 'function') {
-                htmlElement.addEventListener(eventName, value);
-            }
+            addEventListener(htmlElement, eventName, value);
         } else {
-            if (value != null) {
-                htmlElement.setAttribute(key, value);
-            }
+            setAttribute(htmlElement, key, value);
         }
     });
 
     return htmlElement;
 }
 
-// updates DOMNode props, compared to prevProps
-export const updateAttribute = (htmlElement, key, prevValue, currValue) => {
-    if (isEventAttr(key)) {
-        const eventName = getEventFromAttr(key);
-
-        if (typeof prevValue == 'function') {
-            htmlElement.removeEventListener(eventName, prevValue as EventListener);
-        } else if(isSubject(prevValue)){
-            htmlElement.removeEventListener(eventName, prevValue.next);
-        }
-
-        if (typeof currValue == 'function') {
-            htmlElement.addEventListener(eventName, currValue as EventListener);
-        } else if(isSubject(currValue)){
-            htmlElement.addEventListener(eventName, currValue.next);
-        }
-
-    } else {
-        if (currValue == void 0) {
-            htmlElement.removeAttribute(key);
-        } else {
-            htmlElement.setAttribute(key, currValue);
-        }
+export function updateDomElement(prevProps, currProps, htmlElement: HTMLElement) {
+    if (prevProps === currProps) {
+        throw 'A new props object should be passed during a re-render';
     }
-}
 
-
-export const updateDomElement = (prevProps, currProps, htmlElement: HTMLElement) => {
     // update prev props
     Object.entries(prevProps).forEach(([key, prevValue]) => {
         if (PRESERVED_KEYS.includes(key)) {
@@ -70,20 +45,14 @@ export const updateDomElement = (prevProps, currProps, htmlElement: HTMLElement)
             if (currValue != prevValue) {
                 if (isEventAttr(key)) {
                     const eventName = getEventFromAttr(key);
-                    if (typeof prevValue == 'function') {
-                        htmlElement.removeEventListener(eventName, prevValue as EventListener);
-                    }
-
-                    if (typeof currValue == 'function') {
-                        htmlElement.addEventListener(eventName, currValue as EventListener);
-                    }
-
+                    removeEventListener(htmlElement, eventName, prevValue as any);
+                    addEventListener(htmlElement, eventName, prevValue as any);
                 } else {
-                    htmlElement.setAttribute(key, currValue);
+                    setAttribute(htmlElement, key, currValue);
                 }
             }
         } else {
-            htmlElement.removeAttribute(key);
+            removeAttribute(htmlElement, key);
         }
     });
 
@@ -99,12 +68,43 @@ export const updateDomElement = (prevProps, currProps, htmlElement: HTMLElement)
 
         if (isEventAttr(key)) {
             const eventName = getEventFromAttr(key);
-            if (typeof currValue == 'function') {
-                htmlElement.addEventListener(eventName, currValue as EventListener);
-            }
-
+            addEventListener(htmlElement, eventName, currValue as any);
         } else {
-            htmlElement.setAttribute(key, currValue as any);
+            setAttribute(htmlElement, key, currValue);
         }
     });
 }
+
+// updates DOMNode props, compared to prevProps
+function removeEventListener(htmlElement: HTMLElement, eventName: string, handler: void | Function | Subject<any>) {
+    if (!handler) {
+        return;
+    }
+
+    if (isFunction(handler)) {
+        htmlElement.removeEventListener(eventName, handler as EventListener);
+    } else if (isSubject(handler)) {
+        htmlElement.removeEventListener(eventName, handler.next);
+    }
+}
+
+function addEventListener(htmlElement: HTMLElement, eventName: string, handler: void | Function | Subject<any>) {
+    if (!handler) {
+        return;
+    }
+
+    if (isFunction(handler)) {
+        htmlElement.addEventListener(eventName, handler as EventListener);
+    } else if (isSubject(handler)) {
+        htmlElement.addEventListener(eventName, handler.next);
+    }
+}
+
+function setAttribute(htmlElement: HTMLElement, key, value) {
+    htmlElement.setAttribute(key, value);
+}
+
+function removeAttribute(htmlElement: HTMLElement, key) {
+    htmlElement.removeAttribute(key);
+}
+

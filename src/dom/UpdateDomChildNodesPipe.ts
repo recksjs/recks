@@ -3,6 +3,7 @@ import { pairwise, startWith, tap } from 'rxjs/operators';
 import { ICompiledComponent } from '../engine/render';
 import { IArrayChildRenderElement } from "../engine/render/Array";
 import { IHTMLRenderElement, isHTMLRenderElement } from "../engine/render/Static";
+import { isArray } from '../helpers/isArray';
 
 
 export function UpdateDomChildNodesPipe(target: HTMLElement) {
@@ -20,7 +21,7 @@ export function UpdateDomChildNodesPipe(target: HTMLElement) {
                 const fragment = window.document.createDocumentFragment();
                 for(let currChild of currChildren) {
                     if (currChild) {
-                        if (Array.isArray(currChild)) {
+                        if (isArray(currChild)) {
                             currChild.forEach(entry => {
                                 if (entry) {
                                     fragment.appendChild(entry.renderElement.htmlElement);
@@ -49,7 +50,7 @@ export function UpdateDomChildNodesPipe(target: HTMLElement) {
                     const currChild = currChildren[i];
 
                     if (prevChild == currChild) {
-                        if (!Array.isArray(currChild)){
+                        if (!isArray(currChild)){
                             insertBeforeNode = currChild.htmlElement;
                         } else if (currChild.length && currChild[0].renderElement.htmlElement) {
                             insertBeforeNode = currChild[0].renderElement.htmlElement;
@@ -58,7 +59,7 @@ export function UpdateDomChildNodesPipe(target: HTMLElement) {
                         continue;
                     }
 
-                    if (!Array.isArray(prevChild) && !Array.isArray(currChild)) {
+                    if (!isArray(prevChild) && !isArray(currChild)) {
                         if (prevChild.htmlElement) {
                             if (currChild.htmlElement) {
                                 target.replaceChild(currChild.htmlElement, prevChild.htmlElement);
@@ -87,7 +88,7 @@ export function UpdateDomChildNodesPipe(target: HTMLElement) {
                     // array updates (-_-)
                     // prevChild is array
                     // remove all prev array elements, and add current child
-                    if (Array.isArray(prevChild) && !Array.isArray(currChild)) {
+                    if (isArray(prevChild) && !isArray(currChild)) {
                         prevChild.forEach(entry => {
                             target.removeChild(entry.renderElement.htmlElement);
                         });
@@ -100,7 +101,7 @@ export function UpdateDomChildNodesPipe(target: HTMLElement) {
 
                     // currChild is array
                     // remove prev element, and add array elements
-                    if (!Array.isArray(prevChild) && Array.isArray(currChild)) {
+                    if (!isArray(prevChild) && isArray(currChild)) {
                         target.removeChild(prevChild.htmlElement);
 
                         if (!currChild.length) {
@@ -122,7 +123,7 @@ export function UpdateDomChildNodesPipe(target: HTMLElement) {
 
                     // array to array update
                     // console.warn('suboptimal array update');
-                    if (Array.isArray(prevChild) && Array.isArray(currChild)) {
+                    if (isArray(prevChild) && isArray(currChild)) {
                         // store current array keys
                         const currKeys = (new Array(currChild.length)).fill(void 0);
                         // Try early exit if all elements are equal

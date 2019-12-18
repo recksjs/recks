@@ -1,10 +1,9 @@
-import { combineLatest, Observable, of, Subject, isObservable } from 'rxjs';
-import { distinctUntilChanged, pairwise, startWith, switchMap, tap, flatMap } from 'rxjs/operators';
-import { createDomElement, updateAttribute } from '../../dom/DomElement';
-import { isSubject } from '../../helpers/isSubject';
+import { combineLatest, Observable, of, Subject } from 'rxjs';
+import { pairwise, switchMap } from 'rxjs/operators';
+import { ICompiledComponent, renderComponent } from '.';
+import { createDomElement, updateDomElement } from '../../dom/DomElement';
 import { UpdateDomChildNodesPipe } from '../../dom/UpdateDomChildNodesPipe';
 import { IStaticComponent } from '../component/Static';
-import { ICompiledComponent, renderComponent } from '.';
 
 export interface IHTMLRenderElement {
     type: 'HTMLElement'
@@ -23,69 +22,10 @@ export const isHTMLRenderElement = (element: ICompiledComponent): element is IHT
 export function renderStatic(component: IStaticComponent) : Observable<IHTMLRenderElement> {
     const htmlElement = createDomElement(component.definition);
 
-    const splitPropsOperator = () => {
-        const propsStreams = new Map<string, Subject<any>>();
-
-        return source$ => {
-            return new Observable(observer => {
-                return source$.subscribe({
-                    next: (props) => {
-                        const currentProps = new Map(Object.entries(props));
-                        // TODO: use these keys from DOM constant
-                        currentProps.delete('children');
-                        currentProps.delete('key');
-                        currentProps.delete('ref');
-
-                        for (let propEntry of currentProps) {
-                            const [key, value] = propEntry;
-                            if (!propsStreams.has(key)) {
-                                const value = new Subject();
-                                propsStreams.set(key, value);
-                                observer.next({ key, value });
-                            }
-                            propsStreams.get(key).next(value);
-                        }
-
-                        for (let propStream of propsStreams) {
-                            const [key, value] = propStream;
-                            if (!currentProps.has(key)) {
-                                value.next(void 0);
-                                value.complete();
-                                propsStreams.delete(key);
-                            }
-                        }
-                    },
-                    error: observer.error,
-                    complete: observer.complete
-                })
-            })
-        }
-    }
-
     // UPDATE DOM ELEMENT
     component.change$.pipe(
-        splitPropsOperator(),
-        flatMap(({ key, value }) => {
-            return value.pipe(
-                distinctUntilChanged(),
-                switchMap(v => {
-                    // TODO: check if this is an output property here
-                    // if its output -- it accepts subjects as is
-                    // if its input  -- it accepts subjects as observables
-
-                    return (isSubject(v) || !isObservable(v)) 
-                        ? of(v)
-                        : v
-                }),
-                startWith(void 0),
-                pairwise(),
-                tap(([prev, curr]) => {
-                    updateAttribute(htmlElement, key, prev, curr);
-                })
-            )
-        })
-    )
-        .subscribe()
+        pairwise(),
+    ).subscribe(([a, b]) => updateDomElement(a, b, htmlElement))
 
     // NOTE: perf optimisation:
     // to make first render faster, we wait for all children to emit their

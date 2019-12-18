@@ -1,5 +1,6 @@
 import { Subject } from 'rxjs';
+import { isFunction } from './isFunction';
 
 export function isSubject(v): v is Subject<unknown> {
-    return v && typeof v.next == 'function';
+    return v && isFunction(v.next);
 }
