@@ -1,0 +1,33 @@
+# Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.0.5] - 2019-12-19
+### Added
+- event handler params now accept `Subject`s
+
+## [0.0.4]
+### Added
+- added build targets for es2015, umd, esm, cjs
+
+## [0.0.3]
+### Fixed
+- empty array rendering
+
+## [0.0.2]
+### Added
+- rxjs import hack (before proper builds)
+
+## [0.0.1]
+### Added
+- components rendering
+  props as Observable<{ ... }>
+  second param as { destroy$ }
+
+- array rendering
+- observables rendering
+- promises rendering
+
+## [0.0.0]
