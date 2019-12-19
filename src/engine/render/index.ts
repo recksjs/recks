@@ -19,7 +19,8 @@ export const render = (definition, target) => {
 
     root.update$.next(definition);
 
-    // TODO: add tests for unsubscription
+    // TODO: add memory leak test
+    //       unsubscription might not spread up the tree
     return subscription;
 };
 

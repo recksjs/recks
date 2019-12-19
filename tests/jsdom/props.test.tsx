@@ -1,6 +1,6 @@
 import { Recks } from '../../src/index';
-import { of } from 'rxjs';
-import { pluck, map } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 describe('Props', () => {
     let rootElement: HTMLElement;
@@ -21,70 +21,95 @@ describe('Props', () => {
     });
 
     describe('vDOM', () => {
-        test('Static props', () => {
-            const App = () => <div title="Yellow">Submarine</div>
-            Recks.render(<App />, rootElement);
-            expect(rootElement.children[0].innerHTML).toBe('Submarine');
-            expect(rootElement.children[0].getAttribute('title')).toBe('Yellow');
+        describe('initial render', () => {
+            let App$: Subject<any>;
+            const App = () => App$;
+
+            beforeEach(()=>{
+                if (App$) {
+                    App$.complete();
+                }
+                App$ = new Subject();
+            });
+
+            test('Static props', () => {
+                Recks.render(<App />, rootElement);
+                App$.next(<div title="Yellow">Submarine</div>);
+                const divElement =rootElement.children[0];
+                expect(divElement.innerHTML).toBe('Submarine');
+                expect(divElement.getAttribute('title')).toBe('Yellow');
+                App$.next(<div alt="alt">Submarine</div>);
+                expect(divElement.getAttribute('title')).toBe(null);
+                expect(divElement.getAttribute('alt')).toBe('alt');
+            });
+
+            test('Output props as function', () => {
+                const onClick = jest.fn();
+                Recks.render(<App />, rootElement);
+                App$.next(<button onClick={ onClick }>Click me!</button>);
+
+                clickOn(rootElement.children[0]);
+                expect(onClick.mock.calls.length).toBe(1);
+
+                clickOn(rootElement.children[0]);
+                expect(onClick.mock.calls.length).toBe(2);
+
+                App$.next(<button>Don't click me!</button>);
+                clickOn(rootElement.children[0]);
+                expect(onClick.mock.calls.length).toBe(2);
+            })
+
+            test('Output props as function: subsequent update', () => {
+                const onClick = jest.fn();
+                Recks.render(<App />, rootElement);
+                App$.next(<button>Click me!</button>);
+
+                clickOn(rootElement.children[0]);
+                expect(onClick.mock.calls.length).toBe(0);
+
+                App$.next(<button onClick={ onClick }>Click me!</button>);
+
+                clickOn(rootElement.children[0]);
+                expect(onClick.mock.calls.length).toBe(1);
+            })
+
+            describe('Output props as Subject', () => {
+                test('Basic case', () => {
+                    const onClick$ = {
+                        next: jest.fn()
+                    };
+
+                    Recks.render(<App />, rootElement);
+                    App$.next(<button onClick={ onClick$ }>Click me!</button>);
+
+                    clickOn(rootElement.children[0]);
+                    expect(onClick$.next.mock.calls.length).toBe(1);
+                })
+
+                test('Checking that this reference is kept', (done) => {
+                    // RxJS 6.x Subjects require keeping `this` reference to subject instance
+                    // therefore `onClick={ $.next }` wont work
+                    expect.assertions(1);
+
+                    const onClick$ = {
+                        next: function(){
+                            expect(this).toBe(onClick$);
+                            done();
+                        }
+                    };
+
+                    Recks.render(<App />, rootElement);
+                    App$.next(<button onClick={ onClick$ }>Click me!</button>);
+                    clickOn(rootElement.children[0]);
+                })
+            })
         });
-
-        test('X: Dynamic input props', (done) => {
-            const App = () => {
-                const title$ = of('Green', 'Blue', 'Yellow');
-                return <div title={ title$ }>Submarine</div>;
-            }
-
-            Recks.render(<App />, rootElement);
-
-            // setTimeout(()=>{
-                expect(rootElement.children[0].innerHTML).toBe('Submarine');
-                expect(rootElement.children[0].getAttribute('title')).toBe('[object Object]');
-                done();
-            // }, 30)
-        });
-
-        test('Output props as function', () => {
-            const onClick = jest.fn();
-
-            const App = () => {
-                return <button onClick={ onClick }>Click me!</button>;
-            }
-
-            Recks.render(<App />, rootElement);
-
-            const buttonElement = rootElement.children[0];
-            const event = document.createEvent("HTMLEvents");
-            event.initEvent('click', false, true);
-            buttonElement.dispatchEvent(event);
-
-            expect(onClick.mock.calls.length).toBe(1);
-        })
-
-        test('Output props as Subject', () => {
-            const onClick$ = {
-                next: jest.fn()
-            };
-
-            const App = () => {
-                return <button onClick={ onClick$ }>Click me!</button>;
-            }
-
-            Recks.render(<App />, rootElement);
-
-            const buttonElement = rootElement.children[0];
-            const event = document.createEvent("HTMLEvents");
-            event.initEvent('click', false, true);
-            buttonElement.dispatchEvent(event);
-
-            expect(onClick$.next.mock.calls.length).toBe(1);
-        })
-
     });
 
     describe('Subcomponents', () => {
         test('Static props', () => {
             const Child = props$ => props$.pipe(
-            map((props:any) => <div>{props.title}:{ typeof props.title }</div>)
+                map((props:any) => <div>{props.title}:{ typeof props.title }</div>)
             );
             const App = () => <Child title="Morning" />
 
@@ -94,3 +119,9 @@ describe('Props', () => {
     });
 
 })
+
+function clickOn(element: Element) {
+    const event = document.createEvent('HTMLEvents');
+    event.initEvent('click', false, true);
+    return element.dispatchEvent(event);
+}
