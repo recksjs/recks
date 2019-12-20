@@ -13,7 +13,7 @@ export interface IArrayChildRenderElement {
 
 export type IArrayChildrenRenderElements = IArrayChildRenderElement[];
 
-export function renderArray(component: IArrayComponent) {
+export function renderArray(component: IArrayComponent, xmlns: string) {
     // NOTE: this code block is similar to Array Component logic
     // TODO: refactor
 
@@ -61,7 +61,7 @@ export function renderArray(component: IArrayComponent) {
                 const result$ = new ReplaySubject<IArrayChildRenderElement>(1);
                 const destroy$ = new Subject<void>();
 
-                renderComponent(component)
+                renderComponent(component, xmlns)
                     .pipe(
                         map<ICompiledComponent, IArrayChildRenderElement>(
                             // NOTE: casting ICompiledComponent to IRenderElement here

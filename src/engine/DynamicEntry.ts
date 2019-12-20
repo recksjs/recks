@@ -36,12 +36,14 @@ export const DynamicEntry = () => {
         // - different data types of children
         // - different types of elements (leaf / array / static / observable / fn)
         // - keys mismatch
+        // - xmlns mismatch
         // - number of children mismatch
         if (prev === PREV_CHILD_STUB
             || typeof prev != typeof curr
             || (isElement(curr) && isElement(prev) && (
                     prev.type !== curr.type
                     || !Object.is(prev.props.key, curr.props.key)
+                    || !Object.is(prev.props.xmlns, curr.props.xmlns)
                     || prev.props.children.length !== curr.props.children.length
                 )
             )

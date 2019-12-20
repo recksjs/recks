@@ -6,7 +6,7 @@ import { IHTMLRenderElement, isHTMLRenderElement } from "../engine/render/Static
 import { isArray } from '../helpers/isArray';
 
 
-export function UpdateDomChildNodesPipe(target: HTMLElement) {
+export function updateDomChildNodesPipe(target: Element) {
     const initialState = [];
 
     return pipe(
@@ -44,7 +44,7 @@ export function UpdateDomChildNodesPipe(target: HTMLElement) {
             } else {
 
                 // smart comparison and DOM update
-                let insertBeforeNode: HTMLElement | Text = null;
+                let insertBeforeNode: Element | Text = null;
                 for (let i = currChildren.length-1; i >= 0; i--) {
                     const prevChild = prevChildren[i];
                     const currChild = currChildren[i];
