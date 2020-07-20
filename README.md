@@ -1,32 +1,23 @@
----
-description: A framework based on streams.
----
+# Recks 🐶
 
-# Welcome to RecksJS!
+**A framework based on streams.**
 
-Here's a quick example:
+To try the framework, run:
 
-```jsx
-import Recks from 'recks';
-import { timer } from 'rxjs';
-
-function Timer() {
-  const ticks$ = timer(0, 1000);
-
-  return <div>
-    <h1>{ ticks$ }</h1>
-    <p>seconds passed</p>
-  </div>
-}
+```
+git clone https://github.com/recksjs/recks-starter-project.git
+cd recks-starter-project
+npm i
+npm start
 ```
 
-{% hint style="info" %}
-To try the framework use this [online sandbox](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?fontsize=14&hidenavigation=1&theme=dark) or see [installation guide](install.md)
-{% endhint %}
+**Or**
 
-## Intro
+Use this [online sandbox](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?fontsize=14&hidenavigation=1&theme=dark)
 
-To get a better understanding of Recks concepts, read this article: [https://dev.to/kosich/recks-rxjs-based-framework-23h5](https://dev.to/kosich/recks-rxjs-based-framework-23h5)
+## About
+
+Intro article: https://dev.to/kosich/recks-rxjs-based-framework-23h5
 
 ## Examples
 
@@ -39,7 +30,6 @@ function App() {
   return <h1>Hello world!</h1>
 }
 ```
-
 ### 2. A Timer
 
 [online sandbox](https://codesandbox.io/s/recks-example-timer-fjyvj?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
@@ -107,6 +97,7 @@ function Counter () {
   </div>
 }
 ```
+
 
 ### 4. DOM Refs
 
@@ -179,4 +170,3 @@ function List () {
 
 export { List }
 ```
-
