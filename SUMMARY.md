@@ -1,4 +1,5 @@
 # Table of contents
 
-* [Initial page](README.md)
+* [Welcome to RecksJS!](README.md)
+* [Install](install.md)
 
