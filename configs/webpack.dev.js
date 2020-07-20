@@ -1,10 +1,8 @@
 const baseConfig = require('./webpack.base');
-const merge = require('webpack-merge');
+const { merge } = require('webpack-merge');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
-module.exports = merge.strategy({
-    'module.rules': 'append'
-})(baseConfig, {
+module.exports = merge(baseConfig, {
     mode: 'development',
     watch: true,
     plugins: [
