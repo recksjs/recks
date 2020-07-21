@@ -21,7 +21,7 @@ function Timer() {
 ```
 
 {% hint style="info" %}
-To try it, see [Online Sandbox](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?fontsize=14&hidenavigation=1&theme=dark) or [Installation Guide](install.md) 
+To try it, see [Online Sandbox](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?file=/src/App.jsx) or [Installation Guide](install.md) 
 {% endhint %}
 
 ## Overview
