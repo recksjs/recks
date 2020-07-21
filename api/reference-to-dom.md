@@ -1,4 +1,4 @@
-# Reference to DOM
+# DOM references
 
 To interact with actual DOM Element — you need to acquire a reference to it. To get a reference, you can create a Subject and pass that subject to special ref property on JSX element:
 
