@@ -1,8 +1,8 @@
 # Install
 
-{% hint style="info" %}
-You can try the framework in a [sandbox](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?fontsize=14&hidenavigation=1&theme=dark)
-{% endhint %}
+### **Zero** setup
+
+You can try the framework right now in the [**Online Playground**](https://codesandbox.io/s/recks-example-greeting-input-tu6tp)\*\*\*\*
 
 ### Easy setup
 
@@ -15,11 +15,17 @@ npm i
 npm start
 ```
 
+It's a webpack-based setup with latest Recks and RxJS.
+
 ### Custom setup
+
+To setup the project yourself, you'll need to install packages
 
 ```bash
 npm i recks rxjs
 ```
+
+**NOTE:** To properly handle the JSX elements you need to set up `pragma` to use `Recks` name. See [Babel docs](https://babeljs.io/docs/en/babel-preset-react#pragma) for details.
 
 Then to mount framework in your `index.js`
 
@@ -36,5 +42,5 @@ function App() {
 }
 ```
 
-**NOTE:** To properly handle the JSX elements you need to set up `pragma` to use `Recks` name. See [Babel docs](https://babeljs.io/docs/en/babel-preset-react#pragma) for details.
+Please, refer to [template project](https://github.com/recksjs/recks-starter-project) sources for details.
 

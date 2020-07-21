@@ -2,9 +2,9 @@
 description: A framework based on streams.
 ---
 
-# Welcome to RecksJS!
+# Intro to RecksJS
 
-Here's a quick example:
+One code snippet is worth a thousand words
 
 ```jsx
 import Recks from 'recks';
@@ -21,14 +21,40 @@ function Timer() {
 ```
 
 {% hint style="info" %}
-To try the framework use this [Online Sandbox](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?fontsize=14&hidenavigation=1&theme=dark) or see the [Installation Guide](install.md)
+To try the framework use this [Online Sandbox](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?fontsize=14&hidenavigation=1&theme=dark)
+
+For local setup see the [Installation Guide](install.md) 
 {% endhint %}
 
-## Intro
+## Overview
 
-Observables are first class citizens in Recks!
+Observables are first class citizens in Recks ❤️
 
-To get a better understanding of Recks concepts, check out this article: [https://dev.to/kosich/recks-rxjs-based-framework-23h5](https://dev.to/kosich/recks-rxjs-based-framework-23h5)
+```jsx
+return <div>{ interval(1000) }</div>
+```
+
+Recks will subscribe and unsubscribe from provided stream automatically, you don't have to worry about that!
+
+Or you can do other way around: map a stream on JSX
+
+```jsx
+return interval(1000).pipe(
+  map(x => <div>{ x }</div>)
+)
+```
+
+Or you can use Promises that will display a result once resolved:
+
+```jsx
+const result = axios.get(url).then(r => r.data)
+
+return <div>
+  { result }
+</div>
+```
+
+To get a better understanding of Recks concepts, check out this article: ["Intro to Recks: Rx+JSX experiment"](https://dev.to/kosich/recks-rxjs-based-framework-23h5)
 
 ## Examples
 
@@ -90,7 +116,7 @@ function Greeting() {
 
 ### 4. A Counter
 
-Traditional counter example
+Traditional counter example:
 
 ```jsx
 import Recks from 'recks';
@@ -105,92 +131,18 @@ function Counter () {
     );
 
   return <div>
-    <button onClick={ ()=>input$.next(-1) }>minus</button>
+    <button onClick={ ()=>input$.next(-1) }>
+      minus
+    </button>
+
     { view$ }
-    <button onClick={ ()=>input$.next( 1) }>plus</button>
+
+    <button onClick={ ()=>input$.next( 1) }>
+      plus
+    </button>
   </div>
 }
 ```
 
 [online sandbox](https://codesandbox.io/s/recks-example-counter-lw29e?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
-
-### 5. DOM Refs
-
-...
-
-```jsx
-import Recks from 'recks';
-import { Subject } from 'rxjs';
-import { withLatestFrom, takeUntil } from 'rxjs/operators';
-
-function TextInputWithFocusButton(props$, { destroy$ }) {
-  const ref$    = new Subject();
-  const clicks$ = new Subject();
-
-  clicks$
-    .pipe(
-      withLatestFrom(ref$, (_, ref) => ref),
-      takeUntil(destroy$)
-    )
-    .subscribe(ref => {
-      ref.focus();
-    });
-
-  return (
-    <div>
-      <input  ref={ref$} type="text" />
-      <button onClick={ ()=>clicks$.next(null) }>Focus the input</button>
-    </div>
-  );
-}
-```
-
-[online sandbox](https://codesandbox.io/s/recks-example-input-ref-ye5so?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
-
-### 6. Subcomponents
-
-...
-
-```jsx
-import Recks from 'recks';
-import { timer } from 'rxjs';
-import { map } from 'rxjs/operators';
-
-function Parent () {
-  return <div>{
-    timer(0, 1000).pipe(
-      map(i => <Child index={i} />)
-    )
-  }</div>
-}
-
-function Child (props$) {
-  const animal$ = props$.pipe(
-    map(props => props.index % 2 ? '🐱' : '🐭')
-  )
-
-  return <h1 style="text-align: center;">{animal$}</h1>
-}
-```
-
-[online sandbox](https://codesandbox.io/s/recks-example-cat-mouse-hnr41?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
-
-### 7. Lists
-
-```jsx
-import Recks from 'recks';
-
-function List () {
-    const items = ['a', 'b', 'c', 'd'];
-    return <ul>{
-        items.map(letter => <li key={letter}>{letter}</li>)
-    }</ul>
-}
-
-export { List }
-```
-
-{% hint style="info" %}
-Lists require each child to have a key and that key to be unique
-{% endhint %}
 

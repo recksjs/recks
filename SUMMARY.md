@@ -1,6 +1,18 @@
 # Table of contents
 
-* [Welcome to RecksJS!](README.md)
+* [Intro to RecksJS](README.md)
 * [Install](install.md)
+
+## API
+
+* [Lifecycle](api/lifecycle.md)
+* [Events](api/events.md)
+* [Subcomponents](api/subcomponents.md)
+* [Lists](api/lists.md)
+* [Reference to DOM](api/reference-to-dom.md)
+
+---
+
 * [GitHub](https://github.com/recksjs/recks)
+* [Playground](https://codesandbox.io/s/recks-example-greeting-input-tu6tp)
 
