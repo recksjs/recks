@@ -6,21 +6,23 @@ To interact with actual DOM Element — you need to acquire a reference to it. T
 import Recks from 'recks';
 import { Subject } from 'rxjs';
 
-function App(){
+function App() {
   const ref$ = new Subject();
 
   ref$.subscribe(ref => {
-    ref.style.background = 'red';
+    ref.style.background = 'magenta';
   });
 
-  return <div ref={ref$}>Hello!</div>
+  return <div ref={ref$}>Hello!</div>;
 }
 ```
+
+[online sandbox](https://codesandbox.io/s/recks-basic-ref-mvysf?file=/src/App.jsx)
 
 If DOM tree is updated **`ref$`** will emit a reference to the new DOM element.
 
 {% hint style="info" %}
-**`ref$`** will automatically complete with the component
+**`NOTE: ref$`** will automatically complete with the component
 {% endhint %}
 
 ### Focus example

@@ -13,7 +13,7 @@ To listen to DOM events you simply need to prepend event name with `on` prefix:
 `handler` would receive native [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event).
 
 {% hint style="info" %}
-[DOM event list](https://developer.mozilla.org/en-US/docs/Web/Events) on MDN
+**NOTE:** [DOM event list](https://developer.mozilla.org/en-US/docs/Web/Events) on MDN
 {% endhint %}
 
 ### Events and Subjects
