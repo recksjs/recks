@@ -21,9 +21,7 @@ function Timer() {
 ```
 
 {% hint style="info" %}
-To try the framework use this [Online Sandbox](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?fontsize=14&hidenavigation=1&theme=dark)
-
-For local setup see the [Installation Guide](install.md) 
+To try it, see [Online Sandbox](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?fontsize=14&hidenavigation=1&theme=dark) or [Installation Guide](install.md) 
 {% endhint %}
 
 ## Overview
