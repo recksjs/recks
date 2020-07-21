@@ -9,7 +9,7 @@
 * [Events](api/events.md)
 * [Subcomponents](api/subcomponents.md)
 * [Lists](api/lists.md)
-* [DOM references](api/reference-to-dom.md)
+* [DOM references](api/dom-references.md)
 
 ## Libraries
 
