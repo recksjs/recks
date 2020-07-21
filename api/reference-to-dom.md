@@ -48,7 +48,9 @@ function TextInputWithFocusButton(props$, { destroy$ }) {
   return (
     <div>
       <input  ref={ref$} type="text" />
-      <button onClick={ ()=>clicks$.next(null) }>Focus the input</button>
+      <button onClick={ ()=>clicks$.next(null) }>
+        Focus the input
+      </button>
     </div>
   );
 }
