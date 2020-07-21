@@ -1,38 +1,10 @@
-# Recks 🐶
+---
+description: A framework based on streams.
+---
 
-**A framework based on streams.**
+# Welcome to RecksJS!
 
-To try the framework, run:
-
-```
-git clone https://github.com/recksjs/recks-starter-project.git
-cd recks-starter-project
-npm i
-npm start
-```
-
-**Or**
-
-Use this [online sandbox](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?fontsize=14&hidenavigation=1&theme=dark)
-
-## About
-
-Intro article: https://dev.to/kosich/recks-rxjs-based-framework-23h5
-
-## Examples
-
-### 1. Hello world
-
-```jsx
-import Recks from 'recks';
-
-function App() {
-  return <h1>Hello world!</h1>
-}
-```
-### 2. A Timer
-
-[online sandbox](https://codesandbox.io/s/recks-example-timer-fjyvj?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
+Here's a quick example:
 
 ```jsx
 import Recks from 'recks';
@@ -48,9 +20,49 @@ function Timer() {
 }
 ```
 
+{% hint style="info" %}
+To try the framework use this [Online Sandbox](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?fontsize=14&hidenavigation=1&theme=dark) or see the [Installation Guide](install.md)
+{% endhint %}
+
+## Intro
+
+Observables are first class citizens in Recks!
+
+To get a better understanding of Recks concepts, check out this article: [https://dev.to/kosich/recks-rxjs-based-framework-23h5](https://dev.to/kosich/recks-rxjs-based-framework-23h5)
+
+## Examples
+
+### 1. Hello world
+
+```jsx
+import Recks from 'recks';
+
+function App() {
+  return <h1>Hello world!</h1>
+}
+```
+
+### 2. A Timer
+
+```jsx
+import Recks from 'recks';
+import { timer } from 'rxjs';
+
+function Timer() {
+  const ticks$ = timer(0, 1000);
+
+  return <div>
+    <h1>{ ticks$ }</h1>
+    <p>seconds passed</p>
+  </div>
+}
+```
+
+[online sandbox](https://codesandbox.io/s/recks-example-timer-fjyvj?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
+
 ### 3. A Greeting
 
-[online sandbox](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
+Use a simple [Subject](https://rxjs.dev/api/index/class/Subject) to store local component state:
 
 ```jsx
 import Recks from 'recks';
@@ -74,9 +86,11 @@ function Greeting() {
 }
 ```
 
-### 3. A Counter
+[online sandbox](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
 
-[online sandbox](https://codesandbox.io/s/recks-example-counter-lw29e?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
+### 4. A Counter
+
+Traditional counter example
 
 ```jsx
 import Recks from 'recks';
@@ -98,10 +112,11 @@ function Counter () {
 }
 ```
 
+[online sandbox](https://codesandbox.io/s/recks-example-counter-lw29e?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
 
-### 4. DOM Refs
+### 5. DOM Refs
 
-[online sandbox](https://codesandbox.io/s/recks-example-input-ref-ye5so?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
+...
 
 ```jsx
 import Recks from 'recks';
@@ -130,9 +145,11 @@ function TextInputWithFocusButton(props$, { destroy$ }) {
 }
 ```
 
-### 5. Subcomponents
+[online sandbox](https://codesandbox.io/s/recks-example-input-ref-ye5so?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
 
-[online sandbox](https://codesandbox.io/s/recks-example-cat-mouse-hnr41?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
+### 6. Subcomponents
+
+...
 
 ```jsx
 import Recks from 'recks';
@@ -156,10 +173,12 @@ function Child (props$) {
 }
 ```
 
-### 6. Lists
+[online sandbox](https://codesandbox.io/s/recks-example-cat-mouse-hnr41?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
+
+### 7. Lists
 
 ```jsx
-import Re from '../index';
+import Recks from 'recks';
 
 function List () {
     const items = ['a', 'b', 'c', 'd'];
@@ -170,3 +189,8 @@ function List () {
 
 export { List }
 ```
+
+{% hint style="info" %}
+Lists require each child to have a key and that key to be unique
+{% endhint %}
+
