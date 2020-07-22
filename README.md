@@ -1,8 +1,6 @@
-# 🛸 Intro to RecksJS
+# Intro to RecksJS
 
-[![NPM](https://img.shields.io/npm/v/recks)](https://www.npmjs.com/package/recks)
-[![Bundlephobia](https://img.shields.io/bundlephobia/minzip/recks?label=gzipped)](https://bundlephobia.com/result?p=recks@latest)
-[![MIT license](https://img.shields.io/npm/l/recks)](https://opensource.org/licenses/MIT)
+[![NPM](https://img.shields.io/npm/v/recks)](https://www.npmjs.com/package/recks) [![Bundlephobia](https://img.shields.io/bundlephobia/minzip/recks?label=gzipped)](https://bundlephobia.com/result?p=recks@latest) [![MIT license](https://img.shields.io/npm/l/recks)](https://opensource.org/licenses/MIT)
 
 > Official docs: [**recks.gitbook.io**](https://recks.gitbook.io)
 
@@ -22,11 +20,9 @@ function Timer() {
 }
 ```
 
-Try it in this [**online sandbox**](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?file=/src/App.jsx) or [**install locally**](https://recks.gitbook.io/recks/install) 
+Try it in this [**online sandbox**](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?file=/src/App.jsx) or [**install locally**](https://recks.gitbook.io/recks/install)
 
 ⚠️ RecksJS is currently in beta
-
-<br />
 
 ## 🔎 Overview
 
@@ -38,8 +34,6 @@ function App(){
 }
 ```
 
-Recks will subscribe and unsubscribe from provided stream automatically, you don't have to worry about that!
-
 You can also do other way around: map a stream on JSX
 
 ```jsx
@@ -50,21 +44,21 @@ function App(){
 }
 ```
 
+_Recks will subscribe to and unsubscribe from provided streams automatically, you don't have to worry about that!_
+
 And you can use Promises that will display a result, once resolved:
 
 ```jsx
 function App(){
   const result = axios.get(url).then(r => r.data);
-  
+
   return <div>
     { result }
   </div>
 }
 ```
 
-To get a better understanding of Recks concepts, check out this article: ["Intro to Recks: Rx+JSX experiment"](https://dev.to/kosich/recks-rxjs-based-framework-23h5)
-
-<br />
+To get a better understanding of Recks concepts, read this article: ["Intro to Recks: Rx+JSX experiment"](https://dev.to/kosich/recks-rxjs-based-framework-23h5) and check out [API](https://recks.gitbook.io/recks/api/) docs section
 
 ## 📖 Examples
 
@@ -160,8 +154,6 @@ function Counter () {
 
 [online sandbox](https://codesandbox.io/s/recks-example-counter-lw29e?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
 
-<br />
-
 ## 📚 Docs
 
 * [Installation guide](https://recks.gitbook.io/recks/install)
@@ -173,3 +165,4 @@ function Counter () {
 * [Subcomponents](https://recks.gitbook.io/recks/api/subcomponents)
 * [Lists](https://recks.gitbook.io/recks/api/lists)
 * [DOM references](https://recks.gitbook.io/recks/api/dom-references)
+
