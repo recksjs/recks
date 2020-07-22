@@ -48,7 +48,8 @@
     "typescript": "3.9.7",
     "webpack": "4.43.0",
     "webpack-cli": "3.3.12",
-    "webpack-merge": "5.0.9"
+    "webpack-merge": "5.0.9",
+    "webpack-rxjs-externals": "^2.0.0"
   },
   "peerDependencies": {
     "rxjs": "6.6.0",
