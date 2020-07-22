@@ -21,7 +21,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:debug": "node --inspect node_modules/.bin/jest --watch --runInBand",
-    "np": "np"
+    "publish": "npm run build && np"
   },
   "repository": {
     "type": "git",
