@@ -1,7 +1,7 @@
 # 🛸 Intro to RecksJS
 
 [![NPM](https://img.shields.io/npm/v/recks)](https://www.npmjs.com/package/recks)
-[![Bundlephobia](https://img.shields.io/bundlephobia/minzip/recks?label=gzipped)](https://bundlephobia.com/result?p=recks)
+[![Bundlephobia](https://img.shields.io/bundlephobia/minzip/recks?label=gzipped)](https://bundlephobia.com/result?p=recks@latest)
 [![MIT license](https://img.shields.io/npm/l/recks)](https://opensource.org/licenses/MIT)
 
 > Official docs: [**recks.gitbook.io**](https://recks.gitbook.io)
