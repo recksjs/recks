@@ -22,41 +22,55 @@ function Timer() {
 }
 ```
 
-Try it in [online sandbox](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?file=/src/App.jsx) or [install locally](https://recks.gitbook.io/recks/install) 
+Try it in this [**online sandbox**](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?file=/src/App.jsx) or [**install locally**](https://recks.gitbook.io/recks/install) 
+
+⚠️ RecksJS is currently in beta
+
+<br />
 
 ## 🔎 Overview
 
 Observables are first class citizens in Recks ❤️
 
 ```jsx
-return <div>{ interval(1000) }</div>
+function App(){
+  return <div>{ timer(0, 1000) }</div>
+}
 ```
 
 Recks will subscribe and unsubscribe from provided stream automatically, you don't have to worry about that!
 
-Or you can do other way around: map a stream on JSX
+You can also do other way around: map a stream on JSX
 
 ```jsx
-return interval(1000).pipe(
-  map(x => <div>{ x }</div>)
-)
+function App(){
+  return timer(0, 1000).pipe(
+    map(x => <div>{ x }</div>)
+  );
+}
 ```
 
-Or you can use Promises that will display a result once resolved:
+And you can use Promises that will display a result, once resolved:
 
 ```jsx
-const result = axios.get(url).then(r => r.data)
-
-return <div>
-  { result }
-</div>
+function App(){
+  const result = axios.get(url).then(r => r.data);
+  
+  return <div>
+    { result }
+  </div>
+}
 ```
 
 To get a better understanding of Recks concepts, check out this article: ["Intro to Recks: Rx+JSX experiment"](https://dev.to/kosich/recks-rxjs-based-framework-23h5)
 
+<br />
+
 ## 📖 Examples
 
-### 1. Basic Hello world
+### 1. Hello world
+
+Just a basic, no "moving parts"
 
 ```jsx
 import Recks from 'recks';
@@ -67,6 +81,8 @@ function App() {
 ```
 
 ### 2. Timer
+
+RxJS' timer here will emit an integer every second, updating the view
 
 ```jsx
 import Recks from 'recks';
@@ -86,7 +102,7 @@ function Timer() {
 
 ### 3. Greeting
 
-Use a simple [Subject](https://rxjs.dev/api/index/class/Subject) to store local component state:
+Uses a simple [Subject](https://rxjs.dev/api/index/class/Subject) to store local component state:
 
 ```jsx
 import Recks from 'recks';
@@ -114,7 +130,7 @@ function Greeting() {
 
 ### 4. Counter
 
-Traditional counter example:
+Traditional counter example with a [Subject](https://rxjs.dev/api/index/class/Subject):
 
 ```jsx
 import Recks from 'recks';
@@ -144,6 +160,7 @@ function Counter () {
 
 [online sandbox](https://codesandbox.io/s/recks-example-counter-lw29e?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
 
+<br />
 
 ## 📚 Docs
 
