@@ -1,6 +1,7 @@
-import { Recks } from '../../src/index';
+import { Recks } from '../../../src/index';
 import { Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { clickOn } from '../helpers';
 
 describe('Props', () => {
     let rootElement: HTMLElement;
@@ -120,8 +121,3 @@ describe('Props', () => {
 
 })
 
-function clickOn(element: Element) {
-    const event = document.createEvent('HTMLEvents');
-    event.initEvent('click', false, true);
-    return element.dispatchEvent(event);
-}

@@ -4,10 +4,11 @@ import { DynamicEntry } from '../DynamicEntry';
 import { IElement } from '../Element';
 import { IBasicComponent, IComponent } from './index';
 import { isThenable } from '../../helpers/isThenable';
+import { ComponentType } from './helpers';
 
 
 export interface IFnComponent extends IBasicComponent {
-    type: 'fn',
+    type: ComponentType.fn,
     result$: Observable<IComponent>,
 }
 
@@ -35,7 +36,7 @@ export function createFnComponent(definition): IFnComponent {
         .subscribe(dynamicRoot.update$);
 
     return {
-        type: 'fn',
+        type: ComponentType.fn,
         update$,
         destroy$,
         result$: dynamicRoot.result$,

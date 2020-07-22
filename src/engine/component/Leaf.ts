@@ -1,10 +1,11 @@
 import { Observable, ReplaySubject, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { IBasicComponent } from './index';
+import { ComponentType } from './helpers';
 
 
 export interface ILeafComponent extends IBasicComponent {
-    type: 'leaf';
+    type: ComponentType.leaf;
     data: LeafComponentValueType;
     render$: Observable<LeafComponentValueType>;
 }
@@ -22,7 +23,7 @@ export function createLeafComponent(child: LeafComponentValueType): ILeafCompone
         .subscribe(render$);
 
     return {
-        type: 'leaf',
+        type: ComponentType.leaf,
         data: child,
         render$: render$.asObservable(),
         update$,

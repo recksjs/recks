@@ -3,9 +3,10 @@ import { filter, map, take, takeUntil } from 'rxjs/operators';
 import { DynamicEntry, IDynamicEntry } from '../DynamicEntry';
 import { IElement, IProps } from '../Element';
 import { IBasicComponent } from './index';
+import { ComponentType } from './helpers';
 
 export interface IStaticComponent extends IBasicComponent {
-    type: 'static';
+    type: ComponentType.static;
     definition: IElement<string>;
     dynamicChildren: IDynamicEntry[];
     element$: Subject<HTMLElement>;
@@ -52,7 +53,7 @@ export const createStaticComponent = (element) : IStaticComponent => {
     )
 
     return {
-        type: 'static',
+        type: ComponentType.static,
         update$,
         element$,
         definition: element,

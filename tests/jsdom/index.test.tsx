@@ -4,7 +4,6 @@ import { map } from 'rxjs/operators';
 
 // TODO: [chore] properly structurize tests, split into files
 
-// TODO: [cover] subcomponents
 // TODO: [cover] attributes
 // TODO: [cover] events on vDOM
 // TODO: [cover] unhappy paths

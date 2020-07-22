@@ -2,6 +2,7 @@ import { ReplaySubject, Subject } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
 import { createComponent, IChild, IComponent } from './component';
 import { isElement } from './Element';
+import { getType } from './component/helpers';
 
 export interface IDynamicEntry {
     update$: Subject<IChild>;
@@ -9,7 +10,7 @@ export interface IDynamicEntry {
     result$: Subject<IComponent>;
 }
 
-const PREV_CHILD_STUB = Object.create(null) as IChild;
+const NULL_CHILD_STUB = Object.create(null) as IChild;
 
 export const DynamicEntry = () => {
     const update$ = new Subject<IChild>();
@@ -17,7 +18,7 @@ export const DynamicEntry = () => {
     const destroy$ = new Subject<void>();
 
     let component: IComponent;
-    let prev = PREV_CHILD_STUB;
+    let prev = NULL_CHILD_STUB;
 
     destroy$.pipe(
         take(1)
@@ -38,13 +39,13 @@ export const DynamicEntry = () => {
         // - keys mismatch
         // - xmlns mismatch
         // - number of children mismatch
-        if (prev === PREV_CHILD_STUB
-            || typeof prev != typeof curr
+        if (prev === NULL_CHILD_STUB
+            || getType(prev) != getType(curr)
             || (isElement(curr) && isElement(prev) && (
-                    prev.type !== curr.type
-                    || !Object.is(prev.props.key, curr.props.key)
-                    || !Object.is(prev.props.xmlns, curr.props.xmlns)
-                    || prev.props.children.length !== curr.props.children.length
+                   prev.type !== curr.type
+                || !Object.is(prev.props.key, curr.props.key)
+                || !Object.is(prev.props.xmlns, curr.props.xmlns)
+                || prev.props.children.length !== curr.props.children.length
                 )
             )
         ) {

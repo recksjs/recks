@@ -3,10 +3,11 @@ import { map, pairwise, startWith, switchMap, take, takeUntil } from 'rxjs/opera
 import { DynamicEntry } from '../DynamicEntry';
 import { IElement } from '../Element';
 import { IBasicComponent, IComponent } from './index';
+import { ComponentType } from './helpers';
 
 
 export interface IArrayComponent extends IBasicComponent {
-    type: 'array',
+    type: ComponentType.array,
     items$: Observable<{ key: string|number; component: IComponent }[]>;
 }
 
@@ -95,7 +96,7 @@ export function createArrayComponent () : IArrayComponent {
     ).subscribe(items$)
 
     return {
-        type: 'array',
+        type: ComponentType.array,
         items$:  items$.asObservable(),
         update$,
         destroy$
