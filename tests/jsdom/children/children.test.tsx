@@ -23,11 +23,12 @@ describe('Children', () => {
         expect(rootElement.innerHTML).toBe('<span>two</span>');
     });
 
-    // TODO: ENABLE AFTER PREV TEST RUNNING
     test('switching between children', () => {
-        const s$ = new Subject();
+        const source$ = new Subject();
         const True = () => <h1>true</h1>;
         const False = () => <h1>false</h1>;
+        const output$ = source$.pipe(map(x => x ? <True /> : <False />), startWith(null));
+
         const P = () => {
             return <div>
                 <div>
@@ -36,19 +37,19 @@ describe('Children', () => {
                     <span>False</span>
                 </div>
                 <div>
-                    {s$.pipe(map(x => x ? <True /> : <False />), startWith(null))}
+                    {output$}
                 </div>
             </div>
         };
 
         Recks.render(<P />, rootElement);
-        expect(rootElement.children[0].children[1].textContent).toBe('');
-        s$.next(true);
-        expect(rootElement.children[0].children[1].textContent).toBe('true');
-        s$.next(false);
-        expect(rootElement.children[0].children[1].textContent).toBe('false');
-        s$.next(true);
-        expect(rootElement.children[0].children[1].textContent).toBe('true');
+        expect(rootElement.children[0].children[1].innerHTML).toBe('');
+        source$.next(true);
+        expect(rootElement.children[0].children[1].innerHTML).toBe('<h1>true</h1>');
+        source$.next(false);
+        expect(rootElement.children[0].children[1].innerHTML).toBe('<h1>false</h1>');
+        source$.next(true);
+        expect(rootElement.children[0].children[1].innerHTML).toBe('<h1>true</h1>');
     });
 
 })

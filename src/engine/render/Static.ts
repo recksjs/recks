@@ -139,8 +139,8 @@ function splitPropsToStreams() {
                     map.delete(oldKey)
                 }
             },
-            error: observer.error,
-            complete: observer.complete
+            error: e => observer.error(e),
+            complete: () => observer.complete()
         })
 
         // complete all streams on unsubscription
