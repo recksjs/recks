@@ -1,6 +1,6 @@
 # Table of contents
 
-* [Intro to RecksJS](README.md)
+* [Intro to RecksJS](../README.md)
 * [Install](install.md)
 
 ## API

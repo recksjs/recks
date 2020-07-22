@@ -1,10 +1,10 @@
----
-description: A framework based on streams.
----
+# 🛸 Intro to RecksJS
 
-# Intro to RecksJS
+![MIT license](https://img.shields.io/npm/l/recks)
 
-One code snippet is worth a thousand words
+> Official docs: [**recks.gitbook.io**](https://recks.gitbook.io)
+
+RecksJS is a **framework based on streams**
 
 ```jsx
 import Recks from 'recks';
@@ -20,11 +20,9 @@ function Timer() {
 }
 ```
 
-{% hint style="info" %}
-To try it, see [Online Sandbox](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?file=/src/App.jsx) or [Installation Guide](install.md) 
-{% endhint %}
+Try it in [online sandbox](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?file=/src/App.jsx) or [install locally](https://recks.gitbook.io/recks/install) 
 
-## Overview
+## 🔎 Overview
 
 Observables are first class citizens in Recks ❤️
 
@@ -54,9 +52,9 @@ return <div>
 
 To get a better understanding of Recks concepts, check out this article: ["Intro to Recks: Rx+JSX experiment"](https://dev.to/kosich/recks-rxjs-based-framework-23h5)
 
-## Examples
+## 📖 Examples
 
-### 1. Hello world
+### 1. Basic Hello world
 
 ```jsx
 import Recks from 'recks';
@@ -66,7 +64,7 @@ function App() {
 }
 ```
 
-### 2. A Timer
+### 2. Timer
 
 ```jsx
 import Recks from 'recks';
@@ -84,7 +82,7 @@ function Timer() {
 
 [online sandbox](https://codesandbox.io/s/recks-example-timer-fjyvj?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
 
-### 3. A Greeting
+### 3. Greeting
 
 Use a simple [Subject](https://rxjs.dev/api/index/class/Subject) to store local component state:
 
@@ -112,7 +110,7 @@ function Greeting() {
 
 [online sandbox](https://codesandbox.io/s/recks-example-greeting-input-tu6tp?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
 
-### 4. A Counter
+### 4. Counter
 
 Traditional counter example:
 
@@ -144,3 +142,15 @@ function Counter () {
 
 [online sandbox](https://codesandbox.io/s/recks-example-counter-lw29e?fontsize=14&hidenavigation=1&theme=dark&module=/src/App)
 
+
+## 📚 Docs
+
+* [Installation guide](https://recks.gitbook.io/recks/install)
+
+### API
+
+* [Lifecycle](https://recks.gitbook.io/recks/api/lifecycle)
+* [Events](https://recks.gitbook.io/recks/api/events)
+* [Subcomponents](https://recks.gitbook.io/recks/api/subcomponents)
+* [Lists](https://recks.gitbook.io/recks/api/lists)
+* [DOM references](https://recks.gitbook.io/recks/api/dom-references)
