@@ -20,7 +20,7 @@ function Child () {
 
 ### Props
 
-But probably you'll need to pass some properties from the parent to the child.
+Probably you'll need to pass some properties from the parent to the child.
 
 Each component accepts properties stream as the first argument. It's an Observable of properties from the parent. Once Parent re-renders a Child, the `props$` stream will emit another object with updated properties:
 
