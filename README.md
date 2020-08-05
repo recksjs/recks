@@ -10,7 +10,7 @@ RecksJS is a **framework based on streams**
 import Recks from 'recks';
 import { timer } from 'rxjs';
 
-function Timer() {
+function App() {
   const ticks$ = timer(0, 1000);
 
   return <div>
@@ -29,7 +29,7 @@ Try it in this [**online sandbox**](https://codesandbox.io/s/recks-example-greet
 Observables are first class citizens in Recks ❤️
 
 ```jsx
-function App(){
+function App() {
   return <div>{ timer(0, 1000) }</div>
 }
 ```
@@ -37,7 +37,7 @@ function App(){
 You can also do other way around: map a stream on JSX
 
 ```jsx
-function App(){
+function App() {
   return timer(0, 1000).pipe(
     map(x => <div>{ x }</div>)
   );
@@ -49,7 +49,7 @@ _Recks will subscribe to and unsubscribe from provided streams automatically, yo
 And you can use Promises that will display the result, once resolved:
 
 ```jsx
-function App(){
+function App() {
   const result = axios.get(url).then(r => r.data);
 
   return <div>
@@ -82,7 +82,7 @@ RxJS' timer here will emit an integer every second, updating the view
 import Recks from 'recks';
 import { timer } from 'rxjs';
 
-function Timer() {
+function App() {
   const ticks$ = timer(0, 1000);
 
   return <div>
@@ -103,7 +103,7 @@ import Recks from 'recks';
 import { Subject } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 
-function Greeting() {
+function App() {
   const name$ = new Subject();
   const view$ = name$.pipe(
     map(x => x ? `Hello, ${x}!` : ''),
@@ -131,7 +131,7 @@ import Recks from 'recks';
 import { Subject } from 'rxjs';
 import { scan, startWith } from 'rxjs/operators';
 
-function Counter () {
+function App() {
   const input$ = new Subject();
   const view$  = input$.pipe(
       startWith(0),

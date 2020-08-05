@@ -9,14 +9,13 @@ Lists **require** each child to have a **unique key** for rendering
 ```jsx
 import Recks from 'recks';
 
-function List () {
-    const items = ['a', 'b', 'c', 'd'];
-    return <ul>{
-        items.map(letter => <li key={letter}>{letter}</li>)
-    }</ul>
-}
+function App() {
+  const items = ['a', 'b', 'c', 'd'];
 
-export { List }
+  return <ul>{
+    items.map(letter => <li key={letter}>{letter}</li>)
+  }</ul>
+}
 ```
 
 
