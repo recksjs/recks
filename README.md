@@ -46,7 +46,7 @@ function App(){
 
 _Recks will subscribe to and unsubscribe from provided streams automatically, you don't have to worry about that!_
 
-And you can use Promises that will display a result, once resolved:
+And you can use Promises that will display the result, once resolved:
 
 ```jsx
 function App(){
@@ -156,10 +156,9 @@ function Counter () {
 
 ## 📚 Docs
 
-* [Installation guide](https://recks.gitbook.io/recks/install)
+Continue reading:
 
-### API
-
+* \*\*\*\*[**Installation guide**](https://recks.gitbook.io/recks/install)\*\*\*\*
 * [Lifecycle](https://recks.gitbook.io/recks/api/lifecycle)
 * [Events](https://recks.gitbook.io/recks/api/events)
 * [Subcomponents](https://recks.gitbook.io/recks/api/subcomponents)
