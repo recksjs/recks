@@ -10,17 +10,15 @@ export interface ITextRenderElement {
 
 // watch updates
 //    update domElement w/ text node
-export function renderLeaf(component: ILeafComponent): Observable<ICompiledComponent> {
+export function renderLeaf(
+    component: ILeafComponent,
+): Observable<ICompiledComponent> {
     return component.render$.pipe(
         distinctUntilChanged(),
-        map(data => {
-            const text = data != null
-                ? data.toString()
-                : '';
+        map((data) => {
+            const text = data != null ? data.toString() : '';
 
-            return { type: 'Text'
-                   , htmlElement: document.createTextNode(text)
-                   };
-        })
+            return { type: 'Text', htmlElement: document.createTextNode(text) };
+        }),
     );
 }

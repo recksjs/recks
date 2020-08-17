@@ -6,10 +6,9 @@ import { IBasicComponent, IComponent } from './index';
 import { isThenable } from '../../helpers/isThenable';
 import { ComponentType } from './helpers';
 
-
 export interface IFnComponent extends IBasicComponent {
-    type: ComponentType.fn,
-    result$: Observable<IComponent>,
+    type: ComponentType.fn;
+    result$: Observable<IComponent>;
 }
 
 export function createFnComponent(definition): IFnComponent {
@@ -17,22 +16,19 @@ export function createFnComponent(definition): IFnComponent {
     const destroy$ = new Subject<void>();
 
     const props$ = update$.pipe(
-        map(update => update.props),
+        map((update) => update.props),
         takeUntil(destroy$),
     );
 
     const dynamicRoot = DynamicEntry();
 
     const destroyTake1$ = destroy$.pipe(take(1));
-    destroyTake1$
-        .subscribe(dynamicRoot.destroy$);
+    destroyTake1$.subscribe(dynamicRoot.destroy$);
 
     const result = definition.type(props$, { destroy$: destroyTake1$ });
 
     asObservable(result)
-        .pipe(
-            takeUntil(destroy$)
-        )
+        .pipe(takeUntil(destroy$))
         .subscribe(dynamicRoot.update$);
 
     return {
@@ -43,7 +39,7 @@ export function createFnComponent(definition): IFnComponent {
     };
 }
 
-function asObservable(value) : Observable<unknown> {
+function asObservable(value): Observable<unknown> {
     if (isObservable(value)) {
         return value;
     }

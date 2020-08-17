@@ -1,0 +1,6 @@
+{
+    "*.json": "prettier --write",
+    "*.js": "prettier --write",
+    "*.{js,tsx}": "prettier --write",
+    "*.yaml": "prettier --write"
+}

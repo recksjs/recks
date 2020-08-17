@@ -9,11 +9,11 @@ describe('Props', () => {
     beforeEach(() => {
         rootElement = document.createElement('div');
         document.body.appendChild(rootElement);
-    })
+    });
 
-    afterEach(()=>{
+    afterEach(() => {
         document.body.removeChild(rootElement);
-    })
+    });
 
     test('vDOM on root with props', () => {
         Recks.render(<div title="Hello">World</div>, rootElement);
@@ -26,7 +26,7 @@ describe('Props', () => {
             let App$: Subject<any>;
             const App = () => App$;
 
-            beforeEach(()=>{
+            beforeEach(() => {
                 if (App$) {
                     App$.complete();
                 }
@@ -36,7 +36,7 @@ describe('Props', () => {
             test('Static props', () => {
                 Recks.render(<App />, rootElement);
                 App$.next(<div title="Yellow">Submarine</div>);
-                const divElement =rootElement.children[0];
+                const divElement = rootElement.children[0];
                 expect(divElement.innerHTML).toBe('Submarine');
                 expect(divElement.getAttribute('title')).toBe('Yellow');
                 App$.next(<div alt="alt">Submarine</div>);
@@ -47,7 +47,7 @@ describe('Props', () => {
             test('Output props as function', () => {
                 const onClick = jest.fn();
                 Recks.render(<App />, rootElement);
-                App$.next(<button onClick={ onClick }>Click me!</button>);
+                App$.next(<button onClick={onClick}>Click me!</button>);
 
                 clickOn(rootElement.children[0]);
                 expect(onClick.mock.calls.length).toBe(1);
@@ -58,7 +58,7 @@ describe('Props', () => {
                 App$.next(<button>Don't click me!</button>);
                 clickOn(rootElement.children[0]);
                 expect(onClick.mock.calls.length).toBe(2);
-            })
+            });
 
             test('Output props as function: subsequent update', () => {
                 const onClick = jest.fn();
@@ -68,24 +68,24 @@ describe('Props', () => {
                 clickOn(rootElement.children[0]);
                 expect(onClick.mock.calls.length).toBe(0);
 
-                App$.next(<button onClick={ onClick }>Click me!</button>);
+                App$.next(<button onClick={onClick}>Click me!</button>);
 
                 clickOn(rootElement.children[0]);
                 expect(onClick.mock.calls.length).toBe(1);
-            })
+            });
 
             describe('Output props as Subject', () => {
                 test('Basic case', () => {
                     const onClick$ = {
-                        next: jest.fn()
+                        next: jest.fn(),
                     };
 
                     Recks.render(<App />, rootElement);
-                    App$.next(<button onClick={ onClick$ }>Click me!</button>);
+                    App$.next(<button onClick={onClick$}>Click me!</button>);
 
                     clickOn(rootElement.children[0]);
                     expect(onClick$.next.mock.calls.length).toBe(1);
-                })
+                });
 
                 test('Checking that this reference is kept', (done) => {
                     // RxJS 6.x Subjects require keeping `this` reference to subject instance
@@ -93,31 +93,34 @@ describe('Props', () => {
                     expect.assertions(1);
 
                     const onClick$ = {
-                        next: function(){
+                        next: function () {
                             expect(this).toBe(onClick$);
                             done();
-                        }
+                        },
                     };
 
                     Recks.render(<App />, rootElement);
-                    App$.next(<button onClick={ onClick$ }>Click me!</button>);
+                    App$.next(<button onClick={onClick$}>Click me!</button>);
                     clickOn(rootElement.children[0]);
-                })
-            })
+                });
+            });
         });
     });
 
     describe('Subcomponents', () => {
         test('Static props', () => {
-            const Child = props$ => props$.pipe(
-                map((props:any) => <div>{props.title}:{ typeof props.title }</div>)
-            );
-            const App = () => <Child title="Morning" />
+            const Child = (props$) =>
+                props$.pipe(
+                    map((props: any) => (
+                        <div>
+                            {props.title}:{typeof props.title}
+                        </div>
+                    )),
+                );
+            const App = () => <Child title="Morning" />;
 
             Recks.render(<App />, rootElement);
             expect(rootElement.children[0].innerHTML).toBe('Morning:string');
         });
     });
-
-})
-
+});

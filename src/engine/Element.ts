@@ -4,7 +4,7 @@ import { isFunction } from '../helpers/isFunction';
 
 const ELEMENT_TYPE = 're-element';
 
-export interface IElement<A extends Function|string> {
+export interface IElement<A extends Function | string> {
     _n: string;
     _type: typeof ELEMENT_TYPE;
     type: A;
@@ -20,21 +20,17 @@ export interface IProps {
     [key: string]: any;
 }
 
-const Element = <A extends Function|string>(type: A, props) : IElement<A> => {
-    const elementName = isFunction(type) ? type['displayName'] || type.name : type;
+const Element = <A extends Function | string>(type: A, props): IElement<A> => {
+    const elementName = isFunction(type)
+        ? type['displayName'] || type.name
+        : type;
 
-    return (
-        { _n: elementName
-        , _type: ELEMENT_TYPE
-        , type
-        , props
-        }
-    )
-}
+    return { _n: elementName, _type: ELEMENT_TYPE, type, props };
+};
 
-export const isElement = (value: IChild) : value is IElement<any> => {
+export const isElement = (value: IChild): value is IElement<any> => {
     return value && (value as any)._type == ELEMENT_TYPE;
-}
+};
 
 const EMPTY_CHILDREN = [];
 export const createElement = (type, props, ...children): IElement<any> => {
@@ -43,4 +39,4 @@ export const createElement = (type, props, ...children): IElement<any> => {
     }
     props.children = children || EMPTY_CHILDREN;
     return Element(type, props);
-}
+};

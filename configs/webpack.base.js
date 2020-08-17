@@ -9,7 +9,7 @@ module.exports = {
         library: 'recks',
         libraryTarget: 'umd',
         publicPath: '/dist/',
-        umdNamedDefine: true
+        umdNamedDefine: true,
     },
     module: {
         rules: [
@@ -20,18 +20,15 @@ module.exports = {
                     {
                         loader: 'ts-loader',
                         options: {
-                            configFile: 'configs/tsconfig.esm.json'
-                        }
-
-                    }
-                ]
+                            configFile: 'configs/tsconfig.esm.json',
+                        },
+                    },
+                ],
             },
-        ]
+        ],
     },
     resolve: {
-        extensions: ['.ts']
+        extensions: ['.ts'],
     },
-    externals: [
-        webpackRxjsExternals(),
-    ]
+    externals: [webpackRxjsExternals()],
 };

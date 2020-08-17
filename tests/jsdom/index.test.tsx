@@ -14,13 +14,13 @@ describe('Basic', () => {
     beforeEach(() => {
         rootElement = document.createElement('div');
         document.body.appendChild(rootElement);
-    })
+    });
 
-    afterEach(()=>{
+    afterEach(() => {
         document.body.removeChild(rootElement);
-    })
+    });
 
-    describe('Static', ()=> {
+    describe('Static', () => {
         test('Root vDOM', () => {
             Recks.render(<div>Hi</div>, rootElement);
             expect(rootElement.children[0].innerHTML).toBe('Hi');
@@ -34,7 +34,7 @@ describe('Basic', () => {
             });
 
             test('vDOM', () => {
-                const App = () => <div>vDOM</div>
+                const App = () => <div>vDOM</div>;
                 Recks.render(<App />, rootElement);
                 expect(rootElement.children[0].innerHTML).toBe('vDOM');
             });
@@ -42,9 +42,10 @@ describe('Basic', () => {
             // TODO: cover attributes
 
             test('Array', () => {
-                const arrayChildren = (new Array(10))
-                    .fill(undefined).map((_, i) => i)
-                    .map(i => <span key={i}>{i}</span>);
+                const arrayChildren = new Array(10)
+                    .fill(undefined)
+                    .map((_, i) => i)
+                    .map((i) => <span key={i}>{i}</span>);
 
                 const App = () => arrayChildren;
 
@@ -52,7 +53,7 @@ describe('Basic', () => {
                 expect(rootElement.children.length).toBe(10);
                 expect(rootElement.children[7].innerHTML).toBe('7');
             });
-        })
+        });
     });
 
     describe('Promises', () => {
@@ -70,8 +71,8 @@ describe('Basic', () => {
             promise.then(() => {
                 expect(rootElement.innerHTML).toBe('Text');
                 done();
-            })
-        })
+            });
+        });
 
         // TODO: cover other node types
     });
@@ -86,7 +87,7 @@ describe('Basic', () => {
             });
 
             test('multiple', () => {
-                const App = () => of(0,42);
+                const App = () => of(0, 42);
 
                 Recks.render(<App />, rootElement);
                 expect(rootElement.innerHTML).toBe('42');
@@ -95,9 +96,7 @@ describe('Basic', () => {
 
         describe('vDOM', () => {
             test('single', () => {
-                const App = () => of(0).pipe(
-                    map(x => <div>{x}</div>)
-                );
+                const App = () => of(0).pipe(map((x) => <div>{x}</div>));
 
                 Recks.render(<App />, rootElement);
                 expect(rootElement.children[0].tagName).toBe('DIV');
@@ -105,9 +104,10 @@ describe('Basic', () => {
             });
 
             test('multiple', () => {
-                const App = () => range(1, 6).pipe(
-                    map(x => Recks.createElement('h' + x, void 0, x))
-                );
+                const App = () =>
+                    range(1, 6).pipe(
+                        map((x) => Recks.createElement('h' + x, void 0, x)),
+                    );
 
                 Recks.render(<App />, rootElement);
                 expect(rootElement.children[0].tagName).toBe('H6');
@@ -119,12 +119,14 @@ describe('Basic', () => {
 
         describe('Arrays', () => {
             test('increasing length', () => {
-                const App = () => of(1, 2, 3, 4, 5, 6).pipe(
-                    map(i => (new Array(i))
-                        .fill(undefined)
-                        .map((_, j) => <div key={j}>{j}</div>)
-                    )
-                );
+                const App = () =>
+                    of(1, 2, 3, 4, 5, 6).pipe(
+                        map((i) =>
+                            new Array(i)
+                                .fill(undefined)
+                                .map((_, j) => <div key={j}>{j}</div>),
+                        ),
+                    );
 
                 Recks.render(<App />, rootElement);
                 expect(rootElement.children[0].innerHTML).toBe('0');
@@ -132,12 +134,16 @@ describe('Basic', () => {
             });
 
             test('random length', () => {
-                const App = () => of(4, 2, 6, 2).pipe(
-                    map(i => (new Array(i))
-                        .fill(undefined)
-                        .map((_, j) => Recks.createElement('h' + i, { key: j }, j))
-                    )
-                );
+                const App = () =>
+                    of(4, 2, 6, 2).pipe(
+                        map((i) =>
+                            new Array(i)
+                                .fill(undefined)
+                                .map((_, j) =>
+                                    Recks.createElement('h' + i, { key: j }, j),
+                                ),
+                        ),
+                    );
 
                 Recks.render(<App />, rootElement);
                 expect(rootElement.children.length).toBe(2);
@@ -162,15 +168,18 @@ describe('Basic', () => {
                 test('vDOM props', () => {
                     const props = { title: '' };
                     const element = Recks.createElement('div', props, 1);
-                    const App = () => of(0,1,2).pipe(
-                        map(i => {
-                            element.props.title += i;
-                            return element;
-                        })
-                    );
+                    const App = () =>
+                        of(0, 1, 2).pipe(
+                            map((i) => {
+                                element.props.title += i;
+                                return element;
+                            }),
+                        );
 
                     Recks.render(<App />, rootElement);
-                    expect(rootElement.children[0].getAttribute('title')).toBe('012');
+                    expect(rootElement.children[0].getAttribute('title')).toBe(
+                        '012',
+                    );
                 });
 
                 // SUBCOMPONENT
@@ -182,23 +191,26 @@ describe('Basic', () => {
                 xtest('subcomponent', () => {
                     const Child = (props$: Observable<any>) => {
                         return props$.pipe(
-                            map(props => <div title={ props.title }></div>)
-                        )
+                            map((props) => <div title={props.title}></div>),
+                        );
                     };
 
                     const props = { title: '' };
                     const element = Recks.createElement(Child, props, 1);
 
-                    const App = () => of(0,1,2).pipe(
-                        map(i => {
-                            element.props.title += i;
-                            return element;
-                        })
-                    );
+                    const App = () =>
+                        of(0, 1, 2).pipe(
+                            map((i) => {
+                                element.props.title += i;
+                                return element;
+                            }),
+                        );
 
                     Recks.render(<App />, rootElement);
-                    expect(rootElement.children[0].getAttribute('title')).toBe('0');
-                })
+                    expect(rootElement.children[0].getAttribute('title')).toBe(
+                        '0',
+                    );
+                });
 
                 // ARRAY
 
@@ -208,20 +220,20 @@ describe('Basic', () => {
                 // should throw
                 test('array', () => {
                     const arr = [];
-                    const App = () => of('a', 'b', 'c').pipe(
-                        map(i => {
-                            arr.push(<div key={i}>{i}</div>)
-                            return arr;
-                        })
-                    );
+                    const App = () =>
+                        of('a', 'b', 'c').pipe(
+                            map((i) => {
+                                arr.push(<div key={i}>{i}</div>);
+                                return arr;
+                            }),
+                        );
 
                     Recks.render(<App />, rootElement);
                     expect(arr.length).toBe(3);
                     expect(rootElement.children.length).toBe(1);
                     expect(rootElement.children[0].innerHTML).toBe('a');
-                })
-            })
-        })
-    })
-
-})
+                });
+            });
+        });
+    });
+});

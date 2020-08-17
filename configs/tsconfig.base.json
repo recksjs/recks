@@ -18,6 +18,6 @@
             "ES2016.Array.Include",
             "ES2017.Object"
         ],
-        "types": [ "node" ]
+        "types": ["node"]
     }
 }

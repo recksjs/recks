@@ -3,8 +3,8 @@
     "compilerOptions": {
         "jsx": "react",
         "jsxFactory": "Recks.createElement",
-        "types" : ["jest"],
+        "types": ["jest"],
         "esModuleInterop": true
     },
-    "exclude": [ "/dist" ]
+    "exclude": ["/dist"]
 }
