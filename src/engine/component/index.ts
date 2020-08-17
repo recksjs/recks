@@ -13,11 +13,16 @@ export const createComponent = (child: IChild): IComponent => {
     const type = getType(child);
 
     switch (type) {
-        case ComponentType.leaf: return createLeafComponent(<LeafComponentValueType>child);
-        case ComponentType.observable: return createObservableComponent();
-        case ComponentType.array: return createArrayComponent();
-        case ComponentType.static: return createStaticComponent(child);
-        case ComponentType.fn: return createFnComponent(child);
+        case ComponentType.leaf:
+            return createLeafComponent(<LeafComponentValueType>child);
+        case ComponentType.observable:
+            return createObservableComponent();
+        case ComponentType.array:
+            return createArrayComponent();
+        case ComponentType.static:
+            return createStaticComponent(child);
+        case ComponentType.fn:
+            return createFnComponent(child);
         // no default is intentional: getType always returns a type
     }
-}
+};

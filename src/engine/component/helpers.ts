@@ -9,21 +9,32 @@ import { IObservableComponent } from './Observable';
 import { IFnComponent } from './Fn';
 import { IArrayComponent } from './Array';
 
-export type IChild = null | number | string | IElement<any> | Array<IElement<any>> | Observable<any>;
+export type IChild =
+    | null
+    | number
+    | string
+    | IElement<any>
+    | Array<IElement<any>>
+    | Observable<any>;
 
 export interface IBasicComponent {
     update$: Subject<IChild>;
     destroy$: Subject<void>;
 }
 
-export type IComponent = ILeafComponent | IStaticComponent | IObservableComponent | IFnComponent | IArrayComponent;
+export type IComponent =
+    | ILeafComponent
+    | IStaticComponent
+    | IObservableComponent
+    | IFnComponent
+    | IArrayComponent;
 
 export enum ComponentType {
     leaf = 'leaf',
     fn = 'fn',
     array = 'array',
     observable = 'observable',
-    static = 'static'
+    static = 'static',
 }
 
 export function getType(child: IChild): ComponentType {

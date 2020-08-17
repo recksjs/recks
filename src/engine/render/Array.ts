@@ -17,7 +17,14 @@ export function renderArray(component: IArrayComponent, xmlns: string) {
     // NOTE: this code block is similar to Array Component logic
     // TODO: refactor
 
-    const HTMLElementStreams = new Map<ElementKeyType, { component: IComponent, destroy$: Subject<void>, result$: Observable<IArrayChildRenderElement> }>();
+    const HTMLElementStreams = new Map<
+        ElementKeyType,
+        {
+            component: IComponent;
+            destroy$: Subject<void>;
+            result$: Observable<IArrayChildRenderElement>;
+        }
+    >();
 
     return component.items$.pipe(
         startWith(null),
@@ -36,7 +43,11 @@ export function renderArray(component: IArrayComponent, xmlns: string) {
                     let shouldRemove = true;
                     const prevKey = prev[prevIndex].key;
 
-                    for (let currIndex = 0; currIndex < curr.length; currIndex++) {
+                    for (
+                        let currIndex = 0;
+                        currIndex < curr.length;
+                        currIndex++
+                    ) {
                         if (prevKey == curr[currIndex].key) {
                             shouldRemove = false;
                             break;
@@ -52,7 +63,7 @@ export function renderArray(component: IArrayComponent, xmlns: string) {
                 }
             }
 
-            curr.forEach(entry => {
+            curr.forEach((entry) => {
                 const { key, component } = entry;
                 if (HTMLElementStreams.has(key)) {
                     return;
@@ -66,21 +77,20 @@ export function renderArray(component: IArrayComponent, xmlns: string) {
                         map<ICompiledComponent, IArrayChildRenderElement>(
                             // NOTE: casting ICompiledComponent to IRenderElement here
                             //       currently array child cannot be another array
-                            (renderElement: /* casting */ IHTMLRenderElement) => ({ key, renderElement })
+                            (
+                                renderElement: /* casting */ IHTMLRenderElement,
+                            ) => ({ key, renderElement }),
                         ),
-                        takeUntil(destroy$)
+                        takeUntil(destroy$),
                     )
-                    .subscribe(result$)
+                    .subscribe(result$);
 
                 HTMLElementStreams.set(key, { component, result$, destroy$ });
             });
 
             return combineLatest(
-                ...curr.map(
-                    ({ key }) => HTMLElementStreams.get(key).result$
-                )
-            )
-        })
+                ...curr.map(({ key }) => HTMLElementStreams.get(key).result$),
+            );
+        }),
     );
-
 }

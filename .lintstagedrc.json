@@ -1,4 +1,5 @@
 {
     "*.json": "prettier --write",
-    "*.js": "prettier --write"
+    "*.js": "prettier --write",
+    "*.ts": "prettier --write"
 }

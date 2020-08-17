@@ -20,18 +20,13 @@ export const DynamicEntry = () => {
     let component: IComponent;
     let prev = NULL_CHILD_STUB;
 
-    destroy$.pipe(
-        take(1)
-    ).subscribe(() => {
+    destroy$.pipe(take(1)).subscribe(() => {
         if (component) {
             component.destroy$.next(void 0);
         }
     });
 
-    update$.pipe(
-        takeUntil(destroy$),
-    )
-    .subscribe(curr => {
+    update$.pipe(takeUntil(destroy$)).subscribe((curr) => {
         // create a new component if:
         // - there were no prev value
         // - different data types of children
@@ -39,15 +34,15 @@ export const DynamicEntry = () => {
         // - keys mismatch
         // - xmlns mismatch
         // - number of children mismatch
-        if (prev === NULL_CHILD_STUB
-            || getType(prev) != getType(curr)
-            || (isElement(curr) && isElement(prev) && (
-                   prev.type !== curr.type
-                || !Object.is(prev.props.key, curr.props.key)
-                || !Object.is(prev.props.xmlns, curr.props.xmlns)
-                || prev.props.children.length !== curr.props.children.length
-                )
-            )
+        if (
+            prev === NULL_CHILD_STUB ||
+            getType(prev) != getType(curr) ||
+            (isElement(curr) &&
+                isElement(prev) &&
+                (prev.type !== curr.type ||
+                    !Object.is(prev.props.key, curr.props.key) ||
+                    !Object.is(prev.props.xmlns, curr.props.xmlns) ||
+                    prev.props.children.length !== curr.props.children.length))
         ) {
             if (component) {
                 component.destroy$.next(void 0);
@@ -64,6 +59,6 @@ export const DynamicEntry = () => {
     return {
         update$,
         result$: result$.pipe(takeUntil(destroy$)),
-        destroy$
+        destroy$,
     };
 };
