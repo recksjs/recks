@@ -2,9 +2,9 @@ import {
     combineLatest,
     EMPTY,
     GroupedObservable,
-    Observable,
+    isObservable, Observable,
     of,
-    Subject,
+    Subject
 } from 'rxjs';
 import {
     distinctUntilChanged,
@@ -14,7 +14,7 @@ import {
     share,
     startWith,
     switchMap,
-    tap,
+    tap
 } from 'rxjs/operators';
 import { PRESERVED_KEYS } from '../../constants';
 import {
@@ -24,7 +24,7 @@ import {
     removeAttribute,
     removeEventListener,
     updateAttribute,
-    updateEventListener,
+    updateEventListener
 } from '../../dom/DomElement';
 import { updateDomChildNodesPipe } from '../../dom/UpdateDomChildNodesPipe';
 import { isSubject } from '../../helpers/isSubject';
@@ -97,6 +97,7 @@ export function renderStatic(
 
                     return distinct$.pipe(
                         map((value) =>
+                            // TODO: remove event handler as subject
                             isSubject(value) ? (x) => value.next(x) : value,
                         ),
                         pairwise(),
@@ -150,36 +151,43 @@ export function renderStatic(
 // split change$ stream into individual prop streams
 function splitPropsToStreams() {
     return (source$) =>
-        new Observable((observer) => {
-            const map = new Map<string, Subject<unknown>>();
+        new Observable<Observable<unknown>>((observer) => {
+            const propSubjectRegistry = new Map<string, Subject<Observable<unknown>>>();
             const subscription = source$.subscribe({
                 next: (change) => {
                     const changeEntries = Object.entries(change);
                     for (let [key, value] of changeEntries) {
-                        let stream: Subject<unknown>;
+                        let stream: Subject<Observable<unknown>>;
 
-                        if (!map.has(key)) {
-                            stream = new Subject();
-                            stream['key'] = key;
-                            map.set(key, stream);
-                            observer.next(stream);
+                        if (!propSubjectRegistry.has(key)) {
+                            stream = new Subject<Observable<unknown>>();
+                            propSubjectRegistry.set(key, stream);
+                            const output = stream.pipe(
+                                flatMap(o => o)
+                            );
+                            output['key'] = key;
+                            observer.next(output);
                         }
 
                         if (!stream) {
-                            stream = map.get(key);
+                            stream = propSubjectRegistry.get(key);
                         }
 
-                        stream.next(value);
+                        stream.next(
+                            isObservable(value)
+                                ? value
+                                : of(value)
+                        );
                     }
 
-                    for (let oldKey of map.keys()) {
+                    for (let oldKey of propSubjectRegistry.keys()) {
                         if (oldKey in change) {
                             continue;
                         }
 
-                        const deprecatedStream = map.get(oldKey);
+                        const deprecatedStream = propSubjectRegistry.get(oldKey);
                         deprecatedStream.complete();
-                        map.delete(oldKey);
+                        propSubjectRegistry.delete(oldKey);
                     }
                 },
                 error: (e) => observer.error(e),
@@ -188,7 +196,7 @@ function splitPropsToStreams() {
 
             // complete all streams on unsubscription
             subscription.add(() => {
-                [...map.values()].forEach((v) => v.complete());
+                [...propSubjectRegistry.values()].forEach((v) => v.complete());
             });
 
             return subscription;

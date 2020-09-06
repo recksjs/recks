@@ -2,8 +2,8 @@ import { combineLatest, Observable, ReplaySubject, Subject } from 'rxjs';
 import { filter, map, take, takeUntil } from 'rxjs/operators';
 import { DynamicEntry, IDynamicEntry } from '../DynamicEntry';
 import { IElement, IProps } from '../Element';
-import { IBasicComponent } from './index';
 import { ComponentType } from './helpers';
+import { IBasicComponent } from './index';
 
 export interface IStaticComponent extends IBasicComponent {
     type: ComponentType.static;
