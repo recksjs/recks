@@ -1,6 +1,6 @@
-import { Recks } from '../../../src/index';
-import { Subject, of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
+import { Recks } from '../../../src/index';
 
 describe('Children', () => {
     let rootElement: HTMLElement;
@@ -57,5 +57,48 @@ describe('Children', () => {
         expect(rootElement.children[0].children[1].innerHTML).toBe(
             '<h1>true</h1>',
         );
+    });
+
+    describe('Observable params', () => {
+        describe('Static elements', () => {
+            test('Single param', () => {
+                const title$ = new Subject();
+
+                const P = () => <span title={title$} />;
+
+                Recks.render(<P />, rootElement);
+                expect(rootElement.innerHTML).toBe('<span></span>');
+
+                title$.next('a');
+                expect(rootElement.innerHTML).toBe('<span title="a"></span>');
+
+                title$.next('b');
+                expect(rootElement.innerHTML).toBe('<span title="b"></span>');
+            });
+
+            test('Mixed', () => {
+                const title$ = new Subject();
+                const alt$ = new Subject();
+
+                const P = () => (
+                    <span title={title$} alt={alt$} data="data" hello="world" />
+                );
+
+                Recks.render(<P />, rootElement);
+                expect(rootElement.innerHTML).toBe(
+                    '<span data="data" hello="world"></span>',
+                );
+
+                title$.next('el-title');
+                expect(rootElement.innerHTML).toBe(
+                    '<span data="data" hello="world" title="el-title"></span>',
+                );
+
+                alt$.next('alt text');
+                expect(rootElement.innerHTML).toBe(
+                    '<span data="data" hello="world" title="el-title" alt="alt text"></span>',
+                );
+            });
+        });
     });
 });
