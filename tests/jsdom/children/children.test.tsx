@@ -100,5 +100,41 @@ describe('Children', () => {
                 );
             });
         });
+
+        // TODO: ensure param removal
+        // <a b={1} c={2}/>
+        // to
+        // <a />
+
+        describe('Fn components', () => {
+            test('Static value', () => {
+                const C = ({ title }) => <span title={title}></span>;
+                const P = () => <C title="test" />;
+
+                Recks.render(<P />, rootElement);
+
+                expect(rootElement.innerHTML).toBe(
+                    '<span title="test"></span>',
+                );
+            });
+
+            test('Dynamic value', () => {
+                const value$ = new Subject();
+
+                const C = ({ value }) => <span title={value}></span>;
+
+                const P = () => <C value={value$} />;
+
+                Recks.render(<P />, rootElement);
+
+                expect(rootElement.innerHTML).toBe('<span></span>');
+
+                value$.next('a');
+                expect(rootElement.innerHTML).toBe('<span title="a"></span>');
+
+                value$.next('b');
+                expect(rootElement.innerHTML).toBe('<span title="b"></span>');
+            });
+        });
     });
 });

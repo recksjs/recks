@@ -1,7 +1,7 @@
-import { Recks } from '../../src/index';
-import { of, range, Observable } from 'rxjs';
+import { Observable, of, range } from 'rxjs';
 import { map } from 'rxjs/operators';
-
+import { log } from '../../src/helpers/logPipe';
+import { Recks } from '../../src/index';
 // TODO: [chore] properly structurize tests, split into files
 
 // TODO: [cover] attributes
@@ -39,10 +39,8 @@ describe('Basic', () => {
                 expect(rootElement.children[0].innerHTML).toBe('vDOM');
             });
 
-            // TODO: cover attributes
-
             test('Array', () => {
-                const arrayChildren = new Array(10)
+                const arrayChildren = new Array(3)
                     .fill(undefined)
                     .map((_, i) => i)
                     .map((i) => <span key={i}>{i}</span>);
@@ -50,9 +48,11 @@ describe('Basic', () => {
                 const App = () => arrayChildren;
 
                 Recks.render(<App />, rootElement);
-                expect(rootElement.children.length).toBe(10);
-                expect(rootElement.children[7].innerHTML).toBe('7');
+                expect(rootElement.children.length).toBe(3);
+                expect(rootElement.children[2].innerHTML).toBe('2');
             });
+
+            // TODO: cover array changing length w/ previous Observables present
         });
     });
 
@@ -99,28 +99,52 @@ describe('Basic', () => {
                 const App = () => of(0).pipe(map((x) => <div>{x}</div>));
 
                 Recks.render(<App />, rootElement);
-                expect(rootElement.children[0].tagName).toBe('DIV');
-                expect(rootElement.children[0].innerHTML).toBe('0');
+                expect(rootElement.innerHTML).toBe('<div>0</div>');
             });
 
-            test('multiple', () => {
+            test('updating child', () => {
+                const App = () => of(0, 1, 2).pipe(map((x) => <div>{x}</div>));
+
+                Recks.render(<App />, rootElement);
+                expect(rootElement.innerHTML).toBe('<div>2</div>');
+            });
+
+            test('updating tag', () => {
                 const App = () =>
                     range(1, 6).pipe(
                         map((x) => Recks.createElement('h' + x, void 0, x)),
                     );
 
                 Recks.render(<App />, rootElement);
-                expect(rootElement.children[0].tagName).toBe('H6');
-                expect(rootElement.children[0].innerHTML).toBe('6');
+                expect(rootElement.innerHTML).toBe('<h6>6</h6>');
             });
 
             // TODO: cover attributes
         });
 
         describe('Arrays', () => {
+            test('one element', () => {
+                const App = () => of([<h1 key="one">hello</h1>]);
+                Recks.render(<App />, rootElement);
+                expect(rootElement.innerHTML).toBe('<h1>hello</h1>');
+            });
+
+            test('two elements ONLY', () => {
+                const App = () =>
+                    of([
+                        <h1 key="one">hello</h1>,
+                        <h1 key="two">world</h1>,
+                        <h1 key="tre">!</h1>,
+                    ]);
+                Recks.render(<App />, rootElement);
+                expect(rootElement.innerHTML).toBe(
+                    '<h1>hello</h1><h1>world</h1><h1>!</h1>',
+                );
+            });
+
             test('increasing length', () => {
                 const App = () =>
-                    of(1, 2, 3, 4, 5, 6).pipe(
+                    of(1, 2, 3).pipe(
                         map((i) =>
                             new Array(i)
                                 .fill(undefined)
@@ -129,13 +153,14 @@ describe('Basic', () => {
                     );
 
                 Recks.render(<App />, rootElement);
-                expect(rootElement.children[0].innerHTML).toBe('0');
-                expect(rootElement.children.length).toBe(6);
+                expect(rootElement.innerHTML).toBe(
+                    '<div>0</div><div>1</div><div>2</div>',
+                );
             });
 
             test('random length', () => {
                 const App = () =>
-                    of(4, 2, 6, 2).pipe(
+                    of(3, 1, 2).pipe(
                         map((i) =>
                             new Array(i)
                                 .fill(undefined)
@@ -143,14 +168,14 @@ describe('Basic', () => {
                                     Recks.createElement('h' + i, { key: j }, j),
                                 ),
                         ),
+                        log('ARR UP'),
                     );
 
                 Recks.render(<App />, rootElement);
-                expect(rootElement.children.length).toBe(2);
-                expect(rootElement.children[0].tagName).toBe('H2');
+                expect(rootElement.innerHTML).toBe('<h2>0</h2><h2>1</h2>');
             });
 
-            describe('!!!UNSTABLE: Same ref updates!!!', () => {
+            describe.skip('!!!UNSTABLE: Same ref updates!!!', () => {
                 // NOTE: currently neither arrays nor elements are cloned inside
                 // the engine. Therefore if an element or an array is reused
                 // among renders -- its imposible to compare new emission to

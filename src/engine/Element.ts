@@ -1,6 +1,6 @@
 import { Observable, Subject } from 'rxjs';
-import { IChild } from './component';
 import { isFunction } from '../helpers/isFunction';
+import { IChild } from './IChild';
 
 const ELEMENT_TYPE = 're-element';
 
@@ -11,12 +11,12 @@ export interface IElement<A extends Function | string> {
     props: IProps;
 }
 
-export type ElementKeyType = boolean | number | string | Symbol;
+export type ElementKeyType = boolean | number | bigint | string | Symbol;
 
 export interface IProps {
     key?: ElementKeyType;
     ref?: Subject<HTMLElement>;
-    children?: (Observable<Element> | IElement<any>)[];
+    children: (Observable<Element> | IElement<any>)[];
     [key: string]: any;
 }
 
@@ -32,6 +32,7 @@ export const isElement = (value: IChild): value is IElement<any> => {
     return value && (value as any)._type == ELEMENT_TYPE;
 };
 
+// TODO: do not coalesce empty props & children, keep null values
 const EMPTY_CHILDREN = [];
 export const createElement = (type, props, ...children): IElement<any> => {
     if (props == null) {

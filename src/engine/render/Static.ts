@@ -1,33 +1,9 @@
-import {
-    combineLatest,
-    EMPTY,
-    GroupedObservable,
-    isObservable, Observable,
-    of,
-    Subject
-} from 'rxjs';
-import {
-    distinctUntilChanged,
-    flatMap,
-    map,
-    pairwise,
-    share,
-    startWith,
-    switchMap,
-    tap
-} from 'rxjs/operators';
+import { combineLatest, EMPTY, GroupedObservable, Observable, Subject } from 'rxjs';
+import { distinctUntilChanged, flatMap, pairwise, share, startWith, switchMap, tap } from 'rxjs/operators';
 import { PRESERVED_KEYS } from '../../constants';
-import {
-    createDomElement,
-    getEventFromAttr,
-    isEventAttr,
-    removeAttribute,
-    removeEventListener,
-    updateAttribute,
-    updateEventListener
-} from '../../dom/DomElement';
+import { createDomElement, getEventFromAttr, isEventAttr, removeAttribute, removeEventListener, updateAttribute, updateEventListener } from '../../dom/DomElement';
 import { updateDomChildNodesPipe } from '../../dom/UpdateDomChildNodesPipe';
-import { isSubject } from '../../helpers/isSubject';
+import { splitPropsToStreams } from '../../helpers/splitPropsToStreams';
 import { IStaticComponent } from '../component/Static';
 import { ICompiledComponent, renderComponent } from './index';
 
@@ -42,6 +18,9 @@ export const isHTMLRenderElement = (
 ): element is IHTMLRenderElement => {
     return element && 'type' in element && element.type == 'Element';
 };
+
+
+// TODO: ensure all subscriptions are destroyed with returning observable
 
 // watch updates
 //    update domElement
@@ -63,9 +42,27 @@ export function renderStatic(
 
     const htmlElement = createDomElement(component.definition.type, xmlns);
 
-    // UPDATE DOM ELEMENT
-    component.change$
-        .pipe(
+    const childrenXmlns =
+        component.definition.type === 'foreignObject' ? null : xmlns;
+
+
+    return new Observable<IHTMLRenderElement>(observer => {
+
+        // NOTE: perf optimisation:
+        // to make first render faster, we wait for all children to emit their
+        // first value (vDOM) and only then we append all emissions to the parent
+        combineLatest(
+            ...component.dynamicChildren.map((dynamicChild) =>
+                dynamicChild.result$.pipe(
+                    switchMap((result) => renderComponent(result, childrenXmlns)),
+                ),
+            ),
+        )
+            .pipe(updateDomChildNodesPipe(htmlElement))
+            .subscribe(); // TODO: kill this subscription w/ outer obs
+
+        // UPDATING DOM ELEMENT
+        component.change$.pipe(
             splitPropsToStreams(),
 
             // subscribe to each stream and update DOM accordingly
@@ -86,9 +83,8 @@ export function renderStatic(
                 if (!isEvent) {
                     return distinct$.pipe(
                         tap({
-                            next: (value) =>
-                                updateAttribute(htmlElement, key, value),
-                            complete: () => removeAttribute(htmlElement, key),
+                            next(value) { updateAttribute(htmlElement, key, value) },
+                            complete() { removeAttribute(htmlElement, key) },
                         }),
                     );
                 } else {
@@ -96,13 +92,9 @@ export function renderStatic(
                     let latestValue: Function | void;
 
                     return distinct$.pipe(
-                        map((value) =>
-                            // TODO: remove event handler as subject
-                            isSubject(value) ? (x) => value.next(x) : value,
-                        ),
                         pairwise(),
                         tap({
-                            next: ([a, b]) => {
+                            next([a, b]) {
                                 latestValue = b as Function | void;
                                 updateEventListener(
                                     htmlElement,
@@ -111,7 +103,7 @@ export function renderStatic(
                                     b,
                                 );
                             },
-                            complete: () => {
+                            complete() {
                                 removeEventListener(
                                     htmlElement,
                                     eventName,
@@ -125,80 +117,14 @@ export function renderStatic(
         )
         .subscribe();
 
-    const childrenXmlns =
-        component.definition.type === 'foreignObject' ? null : xmlns;
+        // TODO: kill this subscription w/ outer obs
+        // TODO: handle unsubscription (tap doesn't handle it)
 
-    // NOTE: perf optimisation:
-    // to make first render faster, we wait for all children to emit their
-    // first value (vDOM) and only then we append all emissions to the parent
-    combineLatest(
-        ...component.dynamicChildren.map((dynamicChild) =>
-            dynamicChild.result$.pipe(
-                switchMap((result) => renderComponent(result, childrenXmlns)),
-            ),
-        ),
-    )
-        .pipe(updateDomChildNodesPipe(htmlElement))
-        .subscribe();
-
-    return of({
-        type: 'Element',
-        element$: component.element$,
-        htmlElement,
-    });
-}
-
-// split change$ stream into individual prop streams
-function splitPropsToStreams() {
-    return (source$) =>
-        new Observable<Observable<unknown>>((observer) => {
-            const propSubjectRegistry = new Map<string, Subject<Observable<unknown>>>();
-            const subscription = source$.subscribe({
-                next: (change) => {
-                    const changeEntries = Object.entries(change);
-                    for (let [key, value] of changeEntries) {
-                        let stream: Subject<Observable<unknown>>;
-
-                        if (!propSubjectRegistry.has(key)) {
-                            stream = new Subject<Observable<unknown>>();
-                            propSubjectRegistry.set(key, stream);
-                            const output = stream.pipe(
-                                flatMap(o => o)
-                            );
-                            output['key'] = key;
-                            observer.next(output);
-                        }
-
-                        if (!stream) {
-                            stream = propSubjectRegistry.get(key);
-                        }
-
-                        stream.next(
-                            isObservable(value)
-                                ? value
-                                : of(value)
-                        );
-                    }
-
-                    for (let oldKey of propSubjectRegistry.keys()) {
-                        if (oldKey in change) {
-                            continue;
-                        }
-
-                        const deprecatedStream = propSubjectRegistry.get(oldKey);
-                        deprecatedStream.complete();
-                        propSubjectRegistry.delete(oldKey);
-                    }
-                },
-                error: (e) => observer.error(e),
-                complete: () => observer.complete(),
-            });
-
-            // complete all streams on unsubscription
-            subscription.add(() => {
-                [...propSubjectRegistry.values()].forEach((v) => v.complete());
-            });
-
-            return subscription;
+        observer.next({
+            type: 'Element',
+            element$: component.element$,
+            htmlElement,
         });
+        observer.complete();
+    })
 }

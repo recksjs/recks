@@ -1,8 +1,10 @@
 import { Observable, Subject } from 'rxjs';
-import { switchMap, take, takeUntil } from 'rxjs/operators';
-import { DynamicEntry } from '../DynamicEntry';
-import { IBasicComponent, IComponent, IChild } from './index';
+import { switchMap, takeUntil } from 'rxjs/operators';
+import { destroyer } from '../../helpers/destroyer';
+import { IChild } from '../IChild';
+import { DynamicEntry } from './dynamic-entry/DynamicEntry';
 import { ComponentType } from './helpers';
+import { IBasicComponent, IComponent } from './index';
 
 export interface IObservableComponent extends IBasicComponent {
     type: ComponentType.observable;
@@ -11,22 +13,28 @@ export interface IObservableComponent extends IBasicComponent {
 
 export function createObservableComponent(): IObservableComponent {
     const update$ = new Subject<Observable<IChild>>();
-    const destroy$ = new Subject<void>();
+    const [destroy, destroy$] = destroyer();
+
     const dynamicChild = DynamicEntry();
+    destroy$.subscribe(dynamicChild.destroy);
 
-    destroy$.pipe(take(1)).subscribe(dynamicChild.destroy$);
+    const result$ = new Observable<IComponent>(observer => {
+        dynamicChild.result$.subscribe(observer);
 
-    update$
-        .pipe(
-            switchMap((a) => a),
-            takeUntil(destroy$),
-        )
-        .subscribe(dynamicChild.update$);
+        update$
+            .pipe(
+                switchMap((o) => o),
+                takeUntil(destroy$),
+            )
+            .subscribe(dynamicChild.update$);
+    });
 
     return {
         type: ComponentType.observable,
+        // lifecycle
         update$,
-        destroy$,
-        result$: dynamicChild.result$,
+        destroy,
+        // out
+        result$,
     };
 }

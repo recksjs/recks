@@ -1,7 +1,9 @@
 import { combineLatest, Observable, ReplaySubject, Subject } from 'rxjs';
-import { filter, map, take, takeUntil } from 'rxjs/operators';
-import { DynamicEntry, IDynamicEntry } from '../DynamicEntry';
+import { map, pluck, takeUntil } from 'rxjs/operators';
+import { destroyer } from '../../helpers/destroyer';
+import { log } from '../../helpers/logPipe';
 import { IElement, IProps } from '../Element';
+import { DynamicEntry, IDynamicEntry } from './dynamic-entry/DynamicEntry';
 import { ComponentType } from './helpers';
 import { IBasicComponent } from './index';
 
@@ -13,51 +15,59 @@ export interface IStaticComponent extends IBasicComponent {
     change$: Observable<IProps>;
 }
 
-export const createStaticComponent = (element): IStaticComponent => {
-    const update$ = new ReplaySubject<IElement<string>>(1);
-    const destroy$ = new Subject<void>();
-    const element$ = new Subject<HTMLElement>();
+export const createStaticComponent = (element: IElement<string>): IStaticComponent => {
+    const update$ = new Subject<IElement<string>>();
+    const [destroy, destroy$] = destroyer();
+    const element$ = new ReplaySubject<HTMLElement>(1);
 
     const dynamicChildren = element.props.children.map(() => DynamicEntry());
 
-    destroy$.pipe(take(1)).subscribe(() => {
-        dynamicChildren.forEach((child) => child.destroy$.next(void 0));
+    destroy$.subscribe(() => {
+        dynamicChildren.forEach((child) => child.destroy());
         element$.complete();
     });
 
-    dynamicChildren.forEach((child, i) => {
-        update$
-            .pipe(
-                map((update) => update.props.children[i]),
-                takeUntil(destroy$),
-            )
-            .subscribe(child.update$);
-    });
-
-    combineLatest(
-        update$.pipe(
-            map((definition) => definition.props.ref),
-            filter((x) => !!x),
-        ),
-        element$,
-    )
-        .pipe(takeUntil(destroy$))
-        .subscribe(([ref, element]) => {
-            ref.next(element);
+    const change$ = new Observable<IProps>(observer => {
+        dynamicChildren.forEach((child, i) => {
+            update$
+                .pipe(
+                    map((update) => update.props.children[i]),
+                    takeUntil(destroy$),
+                )
+                .subscribe(child.update$);
         });
 
-    const change$ = update$.pipe(
-        map((definition) => definition.props),
-        takeUntil(destroy$),
-    );
+        // Ref handling
+        // TODO: consider making ref a function instead of Subject
+        combineLatest(
+            update$.pipe(pluck('props', 'ref')),
+            element$,
+        )
+            .pipe(takeUntil(destroy$))
+            .subscribe(([ref, element]) => {
+                if (!ref || typeof ref.next != 'function'){
+                    return;
+                }
+
+                ref.next(element);
+            });
+
+        update$.pipe(
+            log('STATIC UPD'),
+            pluck('props'),
+            takeUntil(destroy$),
+        ).subscribe(observer);
+    });
 
     return {
         type: ComponentType.static,
+        definition: element,
+        // lifecycle
         update$,
         element$,
-        definition: element,
-        dynamicChildren,
+        destroy,
+        // output
         change$,
-        destroy$,
+        dynamicChildren,
     };
 };
