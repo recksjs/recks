@@ -1,12 +1,8 @@
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { updateDomChildNodesPipe } from '../../dom/UpdateDomChildNodesPipe';
-import {
-    createComponent,
-    IComponent,
-    IChild,
-    ComponentType,
-} from '../component';
+import { ComponentType, createComponent, IComponent } from '../component';
+import { IChild } from '../IChild';
 import { IArrayChildrenRenderElements, renderArray } from './Array';
 import { renderFn } from './Fn';
 import { ITextRenderElement, renderLeaf } from './Leaf';
@@ -18,15 +14,18 @@ export type ICompiledComponent =
     | IHTMLRenderElement
     | IArrayChildrenRenderElements;
 
+
+// TODO: add memory leak test
+//       unsubscription might not spread up the tree
 export const render = (definition: IChild, target: HTMLElement) => {
     const root = createComponent(definition);
 
-    const subscription = renderRootComponent(root, target).subscribe();
+    renderRootComponent(root, target).subscribe()
 
     root.update$.next(definition);
 
-    // TODO: add memory leak test
-    //       unsubscription might not spread up the tree
+    const subscription = new Subscription();
+    subscription.add(root.destroy);
     return subscription;
 };
 

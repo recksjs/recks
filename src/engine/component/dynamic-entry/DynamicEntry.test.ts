@@ -7,7 +7,7 @@ describe('DynamicEntry', () => {
             complete: jest.fn(),
         };
         dynamicEntry.result$.subscribe(mockObserver);
-        dynamicEntry.destroy$.next(void 0);
+        dynamicEntry.destroy();
 
         expect(mockObserver.complete.mock.calls.length).toBe(1);
     });

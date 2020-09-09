@@ -1,25 +1,18 @@
-import { isObservable, Observable, Subject } from 'rxjs';
-import { isThenable } from '../../helpers/isThenable';
-import { isFunction } from '../../helpers/isFunction';
+import { isObservable, Observer } from 'rxjs';
 import { isArray } from '../../helpers/isArray';
-import { IElement, isElement } from '../Element';
-import { ILeafComponent } from './Leaf';
-import { IStaticComponent } from './Static';
-import { IObservableComponent } from './Observable';
-import { IFnComponent } from './Fn';
+import { isFunction } from '../../helpers/isFunction';
+import { isThenable } from '../../helpers/isThenable';
+import { isElement } from '../Element';
+import { IChild } from '../IChild';
 import { IArrayComponent } from './Array';
-
-export type IChild =
-    | null
-    | number
-    | string
-    | IElement<any>
-    | Array<IElement<any>>
-    | Observable<any>;
+import { IFnComponent } from './Fn';
+import { ILeafComponent } from './Leaf';
+import { IObservableComponent } from './Observable';
+import { IStaticComponent } from './Static';
 
 export interface IBasicComponent {
-    update$: Subject<IChild>;
-    destroy$: Subject<void>;
+    update$: Observer<IChild>;
+    destroy: () => void;
 }
 
 export type IComponent =

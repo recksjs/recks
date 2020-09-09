@@ -1,6 +1,8 @@
+import { IElement } from '../Element';
+import { IChild } from "../IChild";
 import { createArrayComponent } from './Array';
 import { createFnComponent } from './Fn';
-import { ComponentType, getType, IChild, IComponent } from './helpers';
+import { ComponentType, getType, IComponent } from './helpers';
 import { createLeafComponent, LeafComponentValueType } from './Leaf';
 import { createObservableComponent } from './Observable';
 import { createStaticComponent } from './Static';
@@ -20,9 +22,9 @@ export const createComponent = (child: IChild): IComponent => {
         case ComponentType.array:
             return createArrayComponent();
         case ComponentType.static:
-            return createStaticComponent(child);
+            return createStaticComponent(child as IElement<string>);
         case ComponentType.fn:
-            return createFnComponent(child);
+            return createFnComponent(child as IElement<Function>);
         // no default is intentional: getType always returns a type
     }
 };

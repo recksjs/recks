@@ -1,10 +1,11 @@
-import { combineLatest, Observable, of, ReplaySubject, Subject } from 'rxjs';
+import { combineLatest, Observable, of, ReplaySubject } from 'rxjs';
 import { map, pairwise, startWith, switchMap, takeUntil } from 'rxjs/operators';
+import { ICompiledComponent, renderComponent } from '.';
+import { destroyer } from '../../helpers/destroyer';
 import { IComponent } from '../component';
-import { ElementKeyType } from '../Element';
 import { IArrayComponent } from '../component/Array';
+import { ElementKeyType } from '../Element';
 import { IHTMLRenderElement } from './Static';
-import { renderComponent, ICompiledComponent } from '.';
 
 export interface IArrayChildRenderElement {
     key: ElementKeyType;
@@ -21,12 +22,17 @@ export function renderArray(component: IArrayComponent, xmlns: string) {
         ElementKeyType,
         {
             component: IComponent;
-            destroy$: Subject<void>;
             result$: Observable<IArrayChildRenderElement>;
+            destroy: () => void;
         }
     >();
 
     return component.items$.pipe(
+        // tap((items) => {
+        //     console.log('<ARR RENDER>');
+        //     items.forEach(({ key, component }) => console.log('-', key, component['definition']))
+        //     console.log('</ARR RENDER>');
+        // }),
         startWith(null),
         pairwise(),
         switchMap(([prev, curr]) => {
@@ -41,14 +47,20 @@ export function renderArray(component: IArrayComponent, xmlns: string) {
             if (prev && prev.length != 0) {
                 for (let prevIndex = 0; prevIndex < prev.length; prevIndex++) {
                     let shouldRemove = true;
-                    const prevKey = prev[prevIndex].key;
+                    const prevItem = prev[prevIndex];
+                    const prevKey = prevItem.key;
+                    const prevComp = prevItem.component;
 
                     for (
                         let currIndex = 0;
                         currIndex < curr.length;
                         currIndex++
                     ) {
-                        if (prevKey == curr[currIndex].key) {
+                        const currItem = curr[currIndex];
+                        if (
+                            Object.is(prevKey, currItem.key)
+                            && prevComp === currItem.component
+                        ) {
                             shouldRemove = false;
                             break;
                         }
@@ -56,21 +68,23 @@ export function renderArray(component: IArrayComponent, xmlns: string) {
 
                     if (shouldRemove) {
                         const domStream = HTMLElementStreams.get(prevKey);
-                        domStream.component.destroy$.next(void 0);
-                        domStream.destroy$.next(void 0);
+                        domStream.destroy();
                         HTMLElementStreams.delete(prevKey);
                     }
                 }
             }
 
-            curr.forEach((entry) => {
+            const itemStreams = curr.map((entry) => {
                 const { key, component } = entry;
-                if (HTMLElementStreams.has(key)) {
-                    return;
+
+                const elementStream = HTMLElementStreams.get(key);
+                if (elementStream != null) {
+                    return elementStream.result$;
                 }
 
-                const result$ = new ReplaySubject<IArrayChildRenderElement>(1);
-                const destroy$ = new Subject<void>();
+                const [destroy, destroy$] = destroyer();
+                const _result$ = new ReplaySubject<IArrayChildRenderElement>(1);
+                const result$ = _result$.pipe(takeUntil(destroy$));
 
                 renderComponent(component, xmlns)
                     .pipe(
@@ -78,18 +92,20 @@ export function renderArray(component: IArrayComponent, xmlns: string) {
                             // NOTE: casting ICompiledComponent to IRenderElement here
                             //       currently array child cannot be another array
                             (
-                                renderElement: /* casting */ IHTMLRenderElement,
+                                renderElement: IHTMLRenderElement,
                             ) => ({ key, renderElement }),
                         ),
                         takeUntil(destroy$),
                     )
-                    .subscribe(result$);
+                    .subscribe(_result$);
 
-                HTMLElementStreams.set(key, { component, result$, destroy$ });
+                HTMLElementStreams.set(key, { component, result$, destroy });
+
+                return result$;
             });
 
             return combineLatest(
-                ...curr.map(({ key }) => HTMLElementStreams.get(key).result$),
+                ...itemStreams
             );
         }),
     );

@@ -1,46 +1,70 @@
-import {
-    combineLatest,
-    EMPTY,
-    Observable,
-    of,
-    ReplaySubject,
-    Subject,
-} from 'rxjs';
-import {
-    map,
-    pairwise,
-    startWith,
-    switchMap,
-    take,
-    takeUntil,
-} from 'rxjs/operators';
-import { DynamicEntry } from '../DynamicEntry';
-import { IElement } from '../Element';
-import { IBasicComponent, IComponent } from './index';
+import { combineLatest, EMPTY, Observable, of, ReplaySubject, Subject } from 'rxjs';
+import { distinctUntilChanged, map, pairwise, startWith, switchMap, takeUntil } from 'rxjs/operators';
+import { destroyer } from '../../helpers/destroyer';
+import { log } from '../../helpers/logPipe';
+import { ElementKeyType, IElement } from '../Element';
+import { IChild } from '../IChild';
+import { DynamicEntry } from './dynamic-entry/DynamicEntry';
 import { ComponentType } from './helpers';
+import { IBasicComponent, IComponent } from './index';
+
+interface Item {
+    key: ElementKeyType;
+    component: IComponent;
+}
+
+type Items = Item[];
+
+// TODO: move out
+const ReplayDynamicEntry = () => {
+    const entry = DynamicEntry();
+    const update$ = new Subject<IChild>();
+    const result$ = new ReplaySubject<IComponent>(1);
+    let connected = false;
+
+    const connect = () => {
+        if (connected) {
+            return;
+        }
+
+        connected = true;
+        entry.result$.subscribe(result$);
+        update$.subscribe(entry.update$);
+    }
+
+    const destroy = () => {
+        update$.complete();
+        entry.destroy();
+    }
+
+    return {
+        update$,
+        result$,
+        connect,
+        destroy,
+    }
+}
 
 export interface IArrayComponent extends IBasicComponent {
     type: ComponentType.array;
-    items$: Observable<{ key: string | number; component: IComponent }[]>;
+    items$: Observable<Items>;
 }
 
 export function createArrayComponent(): IArrayComponent {
     const update$ = new Subject<IElement<any>[]>();
-    const destroy$ = new Subject<void>();
-    const items$ = new ReplaySubject<
-        { key: string | number; component: IComponent }[]
-    >(1);
+    const [destroy, destroy$] = destroyer();
 
-    const dynamicEntries = new Map();
+    const items$ = new Observable<Items>(observer => {
+        const dynamicEntries = new Map<ElementKeyType, ReturnType<typeof ReplayDynamicEntry>>();
 
-    destroy$.pipe(take(1)).subscribe(() => {
-        for (let value of dynamicEntries.values()) {
-            value.destroy$.next(void 0);
-        }
-    });
+        destroy$.subscribe(() => {
+            for (let value of dynamicEntries.values()) {
+                value.destroy();
+            }
+        });
 
-    update$
-        .pipe(
+        update$.pipe(
+            log('ARR COMP UPD'),
             startWith(null),
             pairwise(),
             switchMap(([prev, curr]) => {
@@ -50,22 +74,23 @@ export function createArrayComponent(): IArrayComponent {
                 // shortcut
                 // if curr array is empty -- just return empty array
                 if (curr.length == 0) {
+                    for (let entry of dynamicEntries.values()) {
+                        entry.destroy();
+                    }
                     dynamicEntries.clear();
                     return of([]);
                 }
 
                 // shortcut
                 // if all elements (keys) are the same -- just push an update to them
+                // NOTE: prev.every might be costly
                 if (
                     prev &&
                     prev.length == curr.length &&
-                    prev.every((p, i) => p.props.key == curr[i].props.key)
+                    prev.every((p, i) => Object.is(p.props.key, curr[i].props.key))
                 ) {
-                    curr.forEach((definition) => {
+                    curr.forEach((definition: IElement<any>) => {
                         const key = definition.props.key;
-                        if (key == null) {
-                            throw 'Key should be defined';
-                        }
                         dynamicEntries.get(key).update$.next(definition);
                     });
                     return EMPTY;
@@ -86,7 +111,7 @@ export function createArrayComponent(): IArrayComponent {
                             currKey < curr.length;
                             currKey++
                         ) {
-                            if (prevKey == curr[currKey].props.key) {
+                            if (Object.is(prevKey, curr[currKey].props.key)) {
                                 shouldRemove = false;
                                 break;
                             }
@@ -94,43 +119,65 @@ export function createArrayComponent(): IArrayComponent {
 
                         if (shouldRemove) {
                             const dynamicEntry = dynamicEntries.get(prevKey);
-                            dynamicEntry.destroy$.next(void 0);
+                            dynamicEntry.destroy();
                             dynamicEntries.delete(prevKey);
                         }
                     }
                 }
 
-                return combineLatest(
-                    ...curr.map((definition) => {
-                        const key = definition.props.key;
-                        if (
-                            key == null ||
-                            (typeof key !== 'string' && typeof key !== 'number')
-                        ) {
-                            console.error(key);
-                            throw 'Key should be string or number';
-                        }
+                const observableItems = curr.map((definition) => {
+                    const key = definition.props.key;
 
-                        if (!dynamicEntries.has(key)) {
-                            dynamicEntries.set(key, DynamicEntry());
-                        }
+                    if (
+                        key == null
+                        || typeof key == 'object'
+                        || typeof key == 'function'
+                    ) {
+                        const err = new Error('Key should be string | number | bigint | boolean | Symbol');
+                        // TODO: error only in dev mode
+                        console.error(err);
+                        throw err;
+                    }
 
-                        const dynamicEntry = dynamicEntries.get(key);
-                        dynamicEntry.update$.next(definition);
-                        return dynamicEntry.result$.pipe(
+                    let dynamicEntry = dynamicEntries.get(key);
+
+                    if (dynamicEntry == undefined) {
+                        dynamicEntry = ReplayDynamicEntry();
+                        dynamicEntries.set(key, dynamicEntry);
+                    }
+
+                    return new Observable<Item>(observer => {
+                        dynamicEntry.result$.pipe(
+                            distinctUntilChanged(),
                             map((component) => ({ key, component })),
-                        );
-                    }),
-                );
+                        ).subscribe(observer);
+
+                        dynamicEntry.connect();
+
+                        console.log('ARR UPD PUSH', definition);
+
+                        dynamicEntry.update$.next(definition);
+                    });
+                });
+
+                // TODO: keep existing keys subscription
+                return combineLatest(...observableItems);
             }),
+            // tap((items) => {
+            //     console.log('<ARR COMPILE>');
+            //     items.forEach(({ key, component }) => console.log('-', key, component['definition']))
+            //     console.log('</ ARR COMPILE>');
+            // }),
             takeUntil(destroy$),
-        )
-        .subscribe(items$);
+        ).subscribe(observer);
+    });
 
     return {
         type: ComponentType.array,
-        items$: items$.asObservable(),
+        // lifecycle
         update$,
-        destroy$,
+        destroy,
+        // out
+        items$,
     };
 }
