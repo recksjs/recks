@@ -1,10 +1,8 @@
-import { combineLatest, EMPTY, Observable, of, ReplaySubject, Subject } from 'rxjs';
+import { combineLatest, EMPTY, Observable, of, ReplaySubject } from 'rxjs';
 import { distinctUntilChanged, map, pairwise, startWith, switchMap, takeUntil } from 'rxjs/operators';
-import { destroyer } from '../../helpers/destroyer';
-import { log } from '../../helpers/logPipe';
+import { createDestroyer } from '../../helpers/destroyer';
 import { ElementKeyType, IElement } from '../Element';
-import { IChild } from '../IChild';
-import { DynamicEntry } from './dynamic-entry/DynamicEntry';
+import { IReplayDynamicEntry, ReplayDynamicEntry } from './dynamic-entry/ReplayDynamicEntry';
 import { ComponentType } from './helpers';
 import { IBasicComponent, IComponent } from './index';
 
@@ -15,47 +13,17 @@ interface Item {
 
 type Items = Item[];
 
-// TODO: move out
-const ReplayDynamicEntry = () => {
-    const entry = DynamicEntry();
-    const update$ = new Subject<IChild>();
-    const result$ = new ReplaySubject<IComponent>(1);
-    let connected = false;
-
-    const connect = () => {
-        if (connected) {
-            return;
-        }
-
-        connected = true;
-        entry.result$.subscribe(result$);
-        update$.subscribe(entry.update$);
-    }
-
-    const destroy = () => {
-        update$.complete();
-        entry.destroy();
-    }
-
-    return {
-        update$,
-        result$,
-        connect,
-        destroy,
-    }
-}
-
 export interface IArrayComponent extends IBasicComponent {
     type: ComponentType.array;
     items$: Observable<Items>;
 }
 
 export function createArrayComponent(): IArrayComponent {
-    const update$ = new Subject<IElement<any>[]>();
-    const [destroy, destroy$] = destroyer();
+    const update$ = new ReplaySubject<IElement<any>[]>(1);
+    const [destroy, destroy$] = createDestroyer();
 
     const items$ = new Observable<Items>(observer => {
-        const dynamicEntries = new Map<ElementKeyType, ReturnType<typeof ReplayDynamicEntry>>();
+        const dynamicEntries = new Map<ElementKeyType, IReplayDynamicEntry>();
 
         destroy$.subscribe(() => {
             for (let value of dynamicEntries.values()) {
@@ -64,7 +32,6 @@ export function createArrayComponent(): IArrayComponent {
         });
 
         update$.pipe(
-            log('ARR COMP UPD'),
             startWith(null),
             pairwise(),
             switchMap(([prev, curr]) => {
@@ -147,27 +114,22 @@ export function createArrayComponent(): IArrayComponent {
                     }
 
                     return new Observable<Item>(observer => {
-                        dynamicEntry.result$.pipe(
+                        const subscription = dynamicEntry.result$.pipe(
                             distinctUntilChanged(),
                             map((component) => ({ key, component })),
                         ).subscribe(observer);
 
                         dynamicEntry.connect();
 
-                        console.log('ARR UPD PUSH', definition);
-
+                        // this is pushed before arr child is rendered
                         dynamicEntry.update$.next(definition);
+
+                        return subscription;
                     });
                 });
 
-                // TODO: keep existing keys subscription
                 return combineLatest(...observableItems);
             }),
-            // tap((items) => {
-            //     console.log('<ARR COMPILE>');
-            //     items.forEach(({ key, component }) => console.log('-', key, component['definition']))
-            //     console.log('</ ARR COMPILE>');
-            // }),
             takeUntil(destroy$),
         ).subscribe(observer);
     });

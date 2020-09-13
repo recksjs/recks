@@ -1,7 +1,7 @@
 import { combineLatest, Observable, of, ReplaySubject } from 'rxjs';
 import { map, pairwise, startWith, switchMap, takeUntil } from 'rxjs/operators';
 import { ICompiledComponent, renderComponent } from '.';
-import { destroyer } from '../../helpers/destroyer';
+import { createDestroyer } from '../../helpers/destroyer';
 import { IComponent } from '../component';
 import { IArrayComponent } from '../component/Array';
 import { ElementKeyType } from '../Element';
@@ -28,11 +28,6 @@ export function renderArray(component: IArrayComponent, xmlns: string) {
     >();
 
     return component.items$.pipe(
-        // tap((items) => {
-        //     console.log('<ARR RENDER>');
-        //     items.forEach(({ key, component }) => console.log('-', key, component['definition']))
-        //     console.log('</ARR RENDER>');
-        // }),
         startWith(null),
         pairwise(),
         switchMap(([prev, curr]) => {
@@ -82,7 +77,7 @@ export function renderArray(component: IArrayComponent, xmlns: string) {
                     return elementStream.result$;
                 }
 
-                const [destroy, destroy$] = destroyer();
+                const [destroy, destroy$] = createDestroyer();
                 const _result$ = new ReplaySubject<IArrayChildRenderElement>(1);
                 const result$ = _result$.pipe(takeUntil(destroy$));
 

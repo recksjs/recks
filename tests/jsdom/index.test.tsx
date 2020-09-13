@@ -1,6 +1,5 @@
 import { Observable, of, range } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { log } from '../../src/helpers/logPipe';
 import { Recks } from '../../src/index';
 // TODO: [chore] properly structurize tests, split into files
 
@@ -168,7 +167,6 @@ describe('Basic', () => {
                                     Recks.createElement('h' + i, { key: j }, j),
                                 ),
                         ),
-                        log('ARR UP'),
                     );
 
                 Recks.render(<App />, rootElement);

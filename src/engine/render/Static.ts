@@ -45,9 +45,7 @@ export function renderStatic(
     const childrenXmlns =
         component.definition.type === 'foreignObject' ? null : xmlns;
 
-
     return new Observable<IHTMLRenderElement>(observer => {
-
         // NOTE: perf optimisation:
         // to make first render faster, we wait for all children to emit their
         // first value (vDOM) and only then we append all emissions to the parent
@@ -59,9 +57,9 @@ export function renderStatic(
             ),
         )
             .pipe(updateDomChildNodesPipe(htmlElement))
-            .subscribe(); // TODO: kill this subscription w/ outer obs
+            .subscribe();
 
-        // UPDATING DOM ELEMENT
+        // Updating dom element
         component.change$.pipe(
             splitPropsToStreams(),
 
@@ -116,9 +114,6 @@ export function renderStatic(
             }),
         )
         .subscribe();
-
-        // TODO: kill this subscription w/ outer obs
-        // TODO: handle unsubscription (tap doesn't handle it)
 
         observer.next({
             type: 'Element',

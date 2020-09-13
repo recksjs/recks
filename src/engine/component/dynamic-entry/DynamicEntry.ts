@@ -1,13 +1,13 @@
-import { Observable, Subject } from 'rxjs';
+import { Observable, ReplaySubject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { createComponent, IComponent } from '..';
-import { destroyer } from '../../../helpers/destroyer';
+import { createDestroyer } from '../../../helpers/destroyer';
 import { isElement } from '../../Element';
 import { IChild } from '../../IChild';
 import { getType } from '../helpers';
 
 export interface IDynamicEntry {
-    update$: Subject<IChild>;
+    update$: ReplaySubject<IChild>;
     destroy: () => void;
     result$: Observable<IComponent>;
 }
@@ -15,8 +15,18 @@ export interface IDynamicEntry {
 const NULL_CHILD_STUB = Object.create(null) as IChild;
 
 export const DynamicEntry = ():IDynamicEntry => {
-    const update$ = new Subject<IChild>();
-    const [destroy, destroy$] = destroyer();
+    // NOTE: on using ReplaySubject instead of Subject here and in components:
+    // when rendering an array of elements we use combineLatest, which waits
+    // till all elements components to emit. Therefore rendering of subelements
+    // would be delayed, which means that we subscribe to sub-components after
+    // we subscribe to higher dynamic elements (later triger pushing updates to
+    // to former).
+    // This brings some issues:
+    // If we use ReplaySubject(1) -- then we might miss some updates. If client
+    // code in Fn will subscribe to props$ w/ a delay -- they will receive all
+    // previous updates.
+    const update$ = new ReplaySubject<IChild>(1);
+    const [destroy, destroy$] = createDestroyer();
 
     let component: IComponent;
     let prev = NULL_CHILD_STUB;
@@ -31,8 +41,6 @@ export const DynamicEntry = ():IDynamicEntry => {
 
         return update$.pipe(takeUntil(destroy$)).subscribe({
             next(curr) {
-                console.log('DYNAMIC ENTRY UPD', curr);
-
                 // create a new component if:
                 // - there were no prev value
                 // - different data types of children
