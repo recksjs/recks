@@ -22,25 +22,32 @@ export function createFnComponent(definition: IElement<Function>): IFnComponent 
     );
 
     const result$ = new Observable<IComponent>(observer => {
-        // TODO: rethink
-        // TODO: if prop has Observable -- use combineLatest to merge it in
-        // TODO: make it replayable for late subscription
+        // WARN: Prop threads are an experimental feature
+        const propThreadMap = new Map<string, Observable<unknown>>();
         const proxiedProps = new Proxy(
             props$,
             {
                 get(target, prop, receiver) {
+                    // props$ Observable API
                     if (Reflect.has(target, prop)) {
                         return Reflect.get(target, prop, receiver);
                     }
 
-                    // TODO: make proxy consistent so each get returns the same value,
-                    //       so `a.stream === a.stream`
-                    return target.pipe(
+                    // Prop thread
+                    let observable = propThreadMap.get(prop as any);
+                    if (observable !== undefined) {
+                        return observable;
+                    }
+
+                    observable = target.pipe(
                         map(o => o && Reflect.get(o, prop)),
                         distinctUntilChanged(),
                         switchMap(asObservable),
                         takeUntil(destroy$)
-                    )
+                    );
+
+                    propThreadMap.set(prop as any, observable);
+                    return observable;
                 }
             }
         );
