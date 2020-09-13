@@ -1,7 +1,6 @@
 import { combineLatest, Observable, ReplaySubject, Subject } from 'rxjs';
 import { map, pluck, takeUntil } from 'rxjs/operators';
-import { destroyer } from '../../helpers/destroyer';
-import { log } from '../../helpers/logPipe';
+import { createDestroyer } from '../../helpers/destroyer';
 import { IElement, IProps } from '../Element';
 import { DynamicEntry, IDynamicEntry } from './dynamic-entry/DynamicEntry';
 import { ComponentType } from './helpers';
@@ -16,8 +15,8 @@ export interface IStaticComponent extends IBasicComponent {
 }
 
 export const createStaticComponent = (element: IElement<string>): IStaticComponent => {
-    const update$ = new Subject<IElement<string>>();
-    const [destroy, destroy$] = destroyer();
+    const update$ = new ReplaySubject<IElement<string>>(1);
+    const [destroy, destroy$] = createDestroyer();
     const element$ = new ReplaySubject<HTMLElement>(1);
 
     const dynamicChildren = element.props.children.map(() => DynamicEntry());
@@ -53,7 +52,6 @@ export const createStaticComponent = (element: IElement<string>): IStaticCompone
             });
 
         update$.pipe(
-            log('STATIC UPD'),
             pluck('props'),
             takeUntil(destroy$),
         ).subscribe(observer);

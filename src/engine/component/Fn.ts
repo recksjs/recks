@@ -1,7 +1,7 @@
-import { Observable, Subject } from 'rxjs';
-import { distinctUntilChanged, map, switchMap, takeUntil } from 'rxjs/operators';
+import { Observable, ReplaySubject } from 'rxjs';
+import { distinctUntilChanged, map, pluck, switchMap, takeUntil } from 'rxjs/operators';
 import { asObservable } from '../../helpers/asObservable';
-import { destroyer } from '../../helpers/destroyer';
+import { createDestroyer } from '../../helpers/destroyer';
 import { IElement } from '../Element';
 import { DynamicEntry } from './dynamic-entry/DynamicEntry';
 import { ComponentType } from './helpers';
@@ -13,11 +13,11 @@ export interface IFnComponent extends IBasicComponent {
 }
 
 export function createFnComponent(definition: IElement<Function>): IFnComponent {
-    const update$ = new Subject<IElement<Function>>();
-    const [destroy, destroy$] = destroyer();
+    const update$ = new ReplaySubject<IElement<Function>>(1);
+    const [destroy, destroy$] = createDestroyer();
 
     const props$ = update$.pipe(
-        map((update) => update.props),
+        pluck('props'),
         takeUntil(destroy$),
     );
 

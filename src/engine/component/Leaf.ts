@@ -1,6 +1,6 @@
-import { Observable, Subject } from 'rxjs';
+import { Observable, ReplaySubject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { destroyer } from '../../helpers/destroyer';
+import { createDestroyer } from '../../helpers/destroyer';
 import { ComponentType } from './helpers';
 import { IBasicComponent } from './index';
 
@@ -15,8 +15,8 @@ export type LeafComponentValueType = string | number | null;
 export function createLeafComponent(
     child: LeafComponentValueType,
 ): ILeafComponent {
-    const update$ = new Subject<LeafComponentValueType>();
-    const [destroy, destroy$] = destroyer();
+    const update$ = new ReplaySubject<LeafComponentValueType>(1);
+    const [destroy, destroy$] = createDestroyer();
 
     const render$ = update$.pipe(takeUntil(destroy$));
 
