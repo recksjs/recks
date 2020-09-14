@@ -1,14 +1,20 @@
 import { isObservable, Observable, of, Subject } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
+import { IProps } from '../engine/Element';
 
 /**
  * Operator to split a stream of Objects into it's individual property streams
+ *
  *
  * Source:
  * ---{ a:1, b:42 }-----{ a: 2, c: 1 }----{ b: 1337 }-------|
  *
  *
+ * Result:
  * ---key:a,key:b-------key:c-------------key:b-------------|
+ *
+ *
+ * Where:
  *
  *    key:a
  *    1-----------------2-----------------------------------|
@@ -20,20 +26,20 @@ import { switchMap } from 'rxjs/operators';
  *                      1-----------------------------------|
  */
 export function splitPropsToStreams() {
-    return (source$) =>
-        new Observable<Observable<unknown>>((observer) => {
+    return (source$: Observable<IProps>) =>
+        new Observable<Observable<any>>((observer) => {
             const propSubjectRegistry = new Map<
                 string,
-                Subject<Observable<unknown>>
+                Subject<Observable<any>>
             >();
             const subscription = source$.subscribe({
-                next: (change) => {
+                next(change) {
                     const changeEntries = Object.entries(change);
                     for (let [key, value] of changeEntries) {
-                        let stream: Subject<Observable<unknown>>;
+                        let stream: Subject<Observable<any>>;
 
                         if (!propSubjectRegistry.has(key)) {
-                            stream = new Subject<Observable<unknown>>();
+                            stream = new Subject<Observable<any>>();
                             propSubjectRegistry.set(key, stream);
                             const propStream = stream.pipe(switchMap((o) => o));
                             propStream['key'] = key;
@@ -59,8 +65,8 @@ export function splitPropsToStreams() {
                         propSubjectRegistry.delete(oldKey);
                     }
                 },
-                error: (e) => observer.error(e),
-                complete: () => observer.complete(),
+                error(e) { observer.error(e); },
+                complete() { observer.complete(); },
             });
 
             // complete all streams on unsubscription
