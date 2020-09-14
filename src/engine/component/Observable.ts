@@ -18,14 +18,15 @@ export function createObservableComponent(): IObservableComponent {
     const dynamicChild = DynamicEntry();
     destroy$.subscribe(dynamicChild.destroy);
 
-    const result$ = new Observable<IComponent>(observer => {
+    const result$ = new Observable<IComponent>((observer) => {
         dynamicChild.result$.subscribe(observer);
 
-        update$.pipe(
-            switchMap((o) => o),
-            takeUntil(destroy$),
-        )
-        .subscribe(dynamicChild.update$);
+        return update$
+            .pipe(
+                switchMap((o) => o),
+                takeUntil(destroy$),
+            )
+            .subscribe(dynamicChild.update$);
     });
 
     return {

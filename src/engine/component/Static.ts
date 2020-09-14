@@ -14,7 +14,9 @@ export interface IStaticComponent extends IBasicComponent {
     change$: Observable<IProps>;
 }
 
-export const createStaticComponent = (element: IElement<string>): IStaticComponent => {
+export const createStaticComponent = (
+    element: IElement<string>,
+): IStaticComponent => {
     const update$ = new ReplaySubject<IElement<string>>(1);
     const [destroy, destroy$] = createDestroyer();
     const element$ = new ReplaySubject<HTMLElement>(1);
@@ -26,7 +28,7 @@ export const createStaticComponent = (element: IElement<string>): IStaticCompone
         element$.complete();
     });
 
-    const change$ = new Observable<IProps>(observer => {
+    const change$ = new Observable<IProps>((observer) => {
         dynamicChildren.forEach((child, i) => {
             update$
                 .pipe(
@@ -38,23 +40,19 @@ export const createStaticComponent = (element: IElement<string>): IStaticCompone
 
         // Ref handling
         // TODO: consider making ref a function instead of Subject
-        combineLatest(
-            update$.pipe(pluck('props', 'ref')),
-            element$,
-        )
+        combineLatest(update$.pipe(pluck('props', 'ref')), element$)
             .pipe(takeUntil(destroy$))
             .subscribe(([ref, element]) => {
-                if (!ref || typeof ref.next != 'function'){
+                if (!ref || typeof ref.next != 'function') {
                     return;
                 }
 
                 ref.next(element);
             });
 
-        update$.pipe(
-            pluck('props'),
-            takeUntil(destroy$),
-        ).subscribe(observer);
+        return update$
+            .pipe(pluck('props'), takeUntil(destroy$))
+            .subscribe(observer);
     });
 
     return {

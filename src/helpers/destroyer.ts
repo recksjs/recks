@@ -6,7 +6,7 @@ export function createDestroyer(): [() => void, Observable<void>] {
     const destroy = () => {
         destroy$.next(void 0);
         destroy$.complete();
-    }
+    };
 
     return [destroy, destroy$.asObservable()];
 }

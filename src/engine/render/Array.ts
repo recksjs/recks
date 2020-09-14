@@ -53,8 +53,8 @@ export function renderArray(component: IArrayComponent, xmlns: string) {
                     ) {
                         const currItem = curr[currIndex];
                         if (
-                            Object.is(prevKey, currItem.key)
-                            && prevComp === currItem.component
+                            Object.is(prevKey, currItem.key) &&
+                            prevComp === currItem.component
                         ) {
                             shouldRemove = false;
                             break;
@@ -86,9 +86,10 @@ export function renderArray(component: IArrayComponent, xmlns: string) {
                         map<ICompiledComponent, IArrayChildRenderElement>(
                             // NOTE: casting ICompiledComponent to IRenderElement here
                             //       currently array child cannot be another array
-                            (
-                                renderElement: IHTMLRenderElement,
-                            ) => ({ key, renderElement }),
+                            (renderElement: IHTMLRenderElement) => ({
+                                key,
+                                renderElement,
+                            }),
                         ),
                         takeUntil(destroy$),
                     )
@@ -99,9 +100,7 @@ export function renderArray(component: IArrayComponent, xmlns: string) {
                 return result$;
             });
 
-            return combineLatest(
-                ...itemStreams
-            );
+            return combineLatest(...itemStreams);
         }),
     );
 }

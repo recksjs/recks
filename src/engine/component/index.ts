@@ -1,5 +1,5 @@
 import { IElement } from '../Element';
-import { IChild } from "../IChild";
+import { IChild } from '../IChild';
 import { createArrayComponent } from './Array';
 import { createFnComponent } from './Fn';
 import { ComponentType, getType, IComponent } from './helpers';
