@@ -1,8 +1,18 @@
 import { combineLatest, EMPTY, Observable, of, ReplaySubject } from 'rxjs';
-import { distinctUntilChanged, map, pairwise, startWith, switchMap, takeUntil } from 'rxjs/operators';
+import {
+    distinctUntilChanged,
+    map,
+    pairwise,
+    startWith,
+    switchMap,
+    takeUntil,
+} from 'rxjs/operators';
 import { createDestroyer } from '../../helpers/destroyer';
 import { ElementKeyType, IElement } from '../Element';
-import { IReplayDynamicEntry, ReplayDynamicEntry } from './dynamic-entry/ReplayDynamicEntry';
+import {
+    IReplayDynamicEntry,
+    ReplayDynamicEntry,
+} from './dynamic-entry/ReplayDynamicEntry';
 import { ComponentType } from './helpers';
 import { IBasicComponent, IComponent } from './index';
 
@@ -22,7 +32,7 @@ export function createArrayComponent(): IArrayComponent {
     const update$ = new ReplaySubject<IElement<any>[]>(1);
     const [destroy, destroy$] = createDestroyer();
 
-    const items$ = new Observable<Items>(observer => {
+    const items$ = new Observable<Items>((observer) => {
         const dynamicEntries = new Map<ElementKeyType, IReplayDynamicEntry>();
 
         destroy$.subscribe(() => {
@@ -31,107 +41,119 @@ export function createArrayComponent(): IArrayComponent {
             }
         });
 
-        update$.pipe(
-            startWith(null),
-            pairwise(),
-            switchMap(([prev, curr]) => {
-                // NOTE: this code block is similar to Array Rendering logic
-                // TODO: refactor
+        return update$
+            .pipe(
+                startWith(null),
+                pairwise(),
+                switchMap(([prev, curr]) => {
+                    // NOTE: this code block is similar to Array Rendering logic
+                    // TODO: refactor
 
-                // shortcut
-                // if curr array is empty -- just return empty array
-                if (curr.length == 0) {
-                    for (let entry of dynamicEntries.values()) {
-                        entry.destroy();
+                    // shortcut
+                    // if curr array is empty -- just return empty array
+                    if (curr.length == 0) {
+                        for (let entry of dynamicEntries.values()) {
+                            entry.destroy();
+                        }
+                        dynamicEntries.clear();
+                        return of([]);
                     }
-                    dynamicEntries.clear();
-                    return of([]);
-                }
 
-                // shortcut
-                // if all elements (keys) are the same -- just push an update to them
-                // NOTE: prev.every might be costly
-                if (
-                    prev &&
-                    prev.length == curr.length &&
-                    prev.every((p, i) => Object.is(p.props.key, curr[i].props.key))
-                ) {
-                    curr.forEach((definition: IElement<any>) => {
-                        const key = definition.props.key;
-                        dynamicEntries.get(key).update$.next(definition);
-                    });
-                    return EMPTY;
-                }
-
-                // removing obsolete keys
-                if (prev && prev.length != 0) {
-                    for (
-                        let prevIndex = 0;
-                        prevIndex < prev.length;
-                        prevIndex++
+                    // shortcut
+                    // if all elements (keys) are the same -- just push an update to them
+                    // NOTE: prev.every might be costly
+                    if (
+                        prev &&
+                        prev.length == curr.length &&
+                        prev.every((p, i) =>
+                            Object.is(p.props.key, curr[i].props.key),
+                        )
                     ) {
-                        let shouldRemove = true;
-                        const prevKey = prev[prevIndex].props.key;
+                        curr.forEach((definition: IElement<any>) => {
+                            const key = definition.props.key;
+                            dynamicEntries.get(key).update$.next(definition);
+                        });
+                        return EMPTY;
+                    }
 
+                    // removing obsolete keys
+                    if (prev && prev.length != 0) {
                         for (
-                            let currKey = 0;
-                            currKey < curr.length;
-                            currKey++
+                            let prevIndex = 0;
+                            prevIndex < prev.length;
+                            prevIndex++
                         ) {
-                            if (Object.is(prevKey, curr[currKey].props.key)) {
-                                shouldRemove = false;
-                                break;
+                            let shouldRemove = true;
+                            const prevKey = prev[prevIndex].props.key;
+
+                            for (
+                                let currKey = 0;
+                                currKey < curr.length;
+                                currKey++
+                            ) {
+                                if (
+                                    Object.is(prevKey, curr[currKey].props.key)
+                                ) {
+                                    shouldRemove = false;
+                                    break;
+                                }
+                            }
+
+                            if (shouldRemove) {
+                                const dynamicEntry = dynamicEntries.get(
+                                    prevKey,
+                                );
+                                dynamicEntry.destroy();
+                                dynamicEntries.delete(prevKey);
                             }
                         }
+                    }
 
-                        if (shouldRemove) {
-                            const dynamicEntry = dynamicEntries.get(prevKey);
-                            dynamicEntry.destroy();
-                            dynamicEntries.delete(prevKey);
+                    const observableItems = curr.map((definition) => {
+                        const key = definition.props.key;
+
+                        if (
+                            key == null ||
+                            typeof key == 'object' ||
+                            typeof key == 'function'
+                        ) {
+                            const err = new Error(
+                                'Key should be string | number | bigint | boolean | Symbol',
+                            );
+                            // TODO: error only in dev mode
+                            console.error(err);
+                            throw err;
                         }
-                    }
-                }
 
-                const observableItems = curr.map((definition) => {
-                    const key = definition.props.key;
+                        let dynamicEntry = dynamicEntries.get(key);
 
-                    if (
-                        key == null
-                        || typeof key == 'object'
-                        || typeof key == 'function'
-                    ) {
-                        const err = new Error('Key should be string | number | bigint | boolean | Symbol');
-                        // TODO: error only in dev mode
-                        console.error(err);
-                        throw err;
-                    }
+                        if (dynamicEntry == undefined) {
+                            dynamicEntry = ReplayDynamicEntry();
+                            dynamicEntries.set(key, dynamicEntry);
+                        }
 
-                    let dynamicEntry = dynamicEntries.get(key);
+                        return new Observable<Item>((observer) => {
+                            const subscription = dynamicEntry.result$
+                                .pipe(
+                                    distinctUntilChanged(),
+                                    map((component) => ({ key, component })),
+                                )
+                                .subscribe(observer);
 
-                    if (dynamicEntry == undefined) {
-                        dynamicEntry = ReplayDynamicEntry();
-                        dynamicEntries.set(key, dynamicEntry);
-                    }
+                            dynamicEntry.connect();
 
-                    return new Observable<Item>(observer => {
-                        const subscription = dynamicEntry.result$.pipe(
-                            distinctUntilChanged(),
-                            map((component) => ({ key, component })),
-                        ).subscribe(observer);
+                            // this is pushed before arr child is rendered
+                            dynamicEntry.update$.next(definition);
 
-                        dynamicEntry.connect();
-
-                        // this is pushed before arr child is rendered
-                        dynamicEntry.update$.next(definition);
-
-                        return subscription;
+                            return subscription;
+                        });
                     });
-                });
 
-                return combineLatest(...observableItems);
-            }),
-            takeUntil(destroy$),
-        ).subscribe(observer);
+                    return combineLatest(...observableItems);
+                }),
+                takeUntil(destroy$),
+            )
+            .subscribe(observer);
     });
 
     return {

@@ -1,7 +1,29 @@
-import { combineLatest, EMPTY, GroupedObservable, Observable, Subject } from 'rxjs';
-import { distinctUntilChanged, flatMap, pairwise, share, startWith, switchMap, tap } from 'rxjs/operators';
+import {
+    combineLatest,
+    EMPTY,
+    GroupedObservable,
+    Observable,
+    Subject,
+} from 'rxjs';
+import {
+    distinctUntilChanged,
+    flatMap,
+    pairwise,
+    share,
+    startWith,
+    switchMap,
+    tap,
+} from 'rxjs/operators';
 import { PRESERVED_KEYS } from '../../constants';
-import { createDomElement, getEventFromAttr, isEventAttr, removeAttribute, removeEventListener, updateAttribute, updateEventListener } from '../../dom/DomElement';
+import {
+    createDomElement,
+    getEventFromAttr,
+    isEventAttr,
+    removeAttribute,
+    removeEventListener,
+    updateAttribute,
+    updateEventListener,
+} from '../../dom/DomElement';
 import { updateDomChildNodesPipe } from '../../dom/UpdateDomChildNodesPipe';
 import { splitPropsToStreams } from '../../helpers/splitPropsToStreams';
 import { IStaticComponent } from '../component/Static';
@@ -18,7 +40,6 @@ export const isHTMLRenderElement = (
 ): element is IHTMLRenderElement => {
     return element && 'type' in element && element.type == 'Element';
 };
-
 
 // TODO: ensure all subscriptions are destroyed with returning observable
 
@@ -45,14 +66,16 @@ export function renderStatic(
     const childrenXmlns =
         component.definition.type === 'foreignObject' ? null : xmlns;
 
-    return new Observable<IHTMLRenderElement>(observer => {
+    return new Observable<IHTMLRenderElement>((observer) => {
         // NOTE: perf optimisation:
         // to make first render faster, we wait for all children to emit their
         // first value (vDOM) and only then we append all emissions to the parent
         combineLatest(
             ...component.dynamicChildren.map((dynamicChild) =>
                 dynamicChild.result$.pipe(
-                    switchMap((result) => renderComponent(result, childrenXmlns)),
+                    switchMap((result) =>
+                        renderComponent(result, childrenXmlns),
+                    ),
                 ),
             ),
         )
@@ -60,60 +83,65 @@ export function renderStatic(
             .subscribe();
 
         // Updating dom element
-        component.change$.pipe(
-            splitPropsToStreams(),
+        component.change$
+            .pipe(
+                splitPropsToStreams(),
 
-            // subscribe to each stream and update DOM accordingly
-            flatMap((group: GroupedObservable<string, unknown>) => {
-                const key = group.key;
-                if (PRESERVED_KEYS.includes(group.key)) {
-                    return EMPTY;
-                }
+                // subscribe to each stream and update DOM accordingly
+                flatMap((group: GroupedObservable<string, unknown>) => {
+                    const key = group.key;
+                    if (PRESERVED_KEYS.includes(group.key)) {
+                        return EMPTY;
+                    }
 
-                const distinct$ = group.pipe(
-                    distinctUntilChanged(),
-                    startWith(void 0),
-                    share(),
-                );
-
-                const isEvent = isEventAttr(group.key);
-
-                if (!isEvent) {
-                    return distinct$.pipe(
-                        tap({
-                            next(value) { updateAttribute(htmlElement, key, value) },
-                            complete() { removeAttribute(htmlElement, key) },
-                        }),
+                    const distinct$ = group.pipe(
+                        distinctUntilChanged(),
+                        startWith(void 0),
+                        share(),
                     );
-                } else {
-                    const eventName = isEvent && getEventFromAttr(key);
-                    let latestValue: Function | void;
 
-                    return distinct$.pipe(
-                        pairwise(),
-                        tap({
-                            next([a, b]) {
-                                latestValue = b as Function | void;
-                                updateEventListener(
-                                    htmlElement,
-                                    eventName,
-                                    a,
-                                    b,
-                                );
-                            },
-                            complete() {
-                                removeEventListener(
-                                    htmlElement,
-                                    eventName,
-                                    latestValue,
-                                );
-                            },
-                        }),
-                    );
-                }
-            }),
-        )
-        .subscribe();
+                    const isEvent = isEventAttr(group.key);
+
+                    if (!isEvent) {
+                        return distinct$.pipe(
+                            tap({
+                                next(value) {
+                                    updateAttribute(htmlElement, key, value);
+                                },
+                                complete() {
+                                    removeAttribute(htmlElement, key);
+                                },
+                            }),
+                        );
+                    } else {
+                        const eventName = isEvent && getEventFromAttr(key);
+                        let latestValue: Function | void;
+
+                        return distinct$.pipe(
+                            pairwise(),
+                            tap({
+                                next([a, b]) {
+                                    latestValue = b as Function | void;
+                                    updateEventListener(
+                                        htmlElement,
+                                        eventName,
+                                        a,
+                                        b,
+                                    );
+                                },
+                                complete() {
+                                    removeEventListener(
+                                        htmlElement,
+                                        eventName,
+                                        latestValue,
+                                    );
+                                },
+                            }),
+                        );
+                    }
+                }),
+            )
+            .subscribe();
 
         observer.next({
             type: 'Element',
@@ -121,5 +149,5 @@ export function renderStatic(
             htmlElement,
         });
         observer.complete();
-    })
+    });
 }

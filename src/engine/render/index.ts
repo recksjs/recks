@@ -14,13 +14,12 @@ export type ICompiledComponent =
     | IHTMLRenderElement
     | IArrayChildrenRenderElements;
 
-
 // TODO: add memory leak test
 //       unsubscription might not spread up the tree
 export const render = (definition: IChild, target: HTMLElement) => {
     const root = createComponent(definition);
 
-    renderRootComponent(root, target).subscribe()
+    renderRootComponent(root, target).subscribe();
 
     root.update$.next(definition);
 

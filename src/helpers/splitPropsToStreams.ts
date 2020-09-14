@@ -1,10 +1,5 @@
-import {
-    isObservable, Observable,
-    of,
-    Subject
-} from 'rxjs';
+import { isObservable, Observable, of, Subject } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-
 
 /**
  * Operator to split a stream of Objects into it's individual property streams
@@ -27,7 +22,10 @@ import { switchMap } from 'rxjs/operators';
 export function splitPropsToStreams() {
     return (source$) =>
         new Observable<Observable<unknown>>((observer) => {
-            const propSubjectRegistry = new Map<string, Subject<Observable<unknown>>>();
+            const propSubjectRegistry = new Map<
+                string,
+                Subject<Observable<unknown>>
+            >();
             const subscription = source$.subscribe({
                 next: (change) => {
                     const changeEntries = Object.entries(change);
@@ -37,9 +35,7 @@ export function splitPropsToStreams() {
                         if (!propSubjectRegistry.has(key)) {
                             stream = new Subject<Observable<unknown>>();
                             propSubjectRegistry.set(key, stream);
-                            const propStream = stream.pipe(
-                                switchMap(o => o)
-                            );
+                            const propStream = stream.pipe(switchMap((o) => o));
                             propStream['key'] = key;
                             observer.next(propStream);
                         }
@@ -48,11 +44,7 @@ export function splitPropsToStreams() {
                             stream = propSubjectRegistry.get(key);
                         }
 
-                        stream.next(
-                            isObservable(value)
-                                ? value
-                                : of(value)
-                        );
+                        stream.next(isObservable(value) ? value : of(value));
                     }
 
                     for (let oldKey of propSubjectRegistry.keys()) {
@@ -60,7 +52,9 @@ export function splitPropsToStreams() {
                             continue;
                         }
 
-                        const deprecatedStream = propSubjectRegistry.get(oldKey);
+                        const deprecatedStream = propSubjectRegistry.get(
+                            oldKey,
+                        );
                         deprecatedStream.complete();
                         propSubjectRegistry.delete(oldKey);
                     }

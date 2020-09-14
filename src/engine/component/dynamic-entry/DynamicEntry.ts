@@ -14,7 +14,7 @@ export interface IDynamicEntry {
 
 const NULL_CHILD_STUB = Object.create(null) as IChild;
 
-export const DynamicEntry = ():IDynamicEntry => {
+export const DynamicEntry = (): IDynamicEntry => {
     // NOTE: on using ReplaySubject instead of Subject here and in components:
     // when rendering an array of elements we use combineLatest, which waits
     // till all elements components to emit. Therefore rendering of subelements
@@ -37,8 +37,7 @@ export const DynamicEntry = ():IDynamicEntry => {
         }
     });
 
-    const result$ = new Observable<IComponent>(observer => {
-
+    const result$ = new Observable<IComponent>((observer) => {
         return update$.pipe(takeUntil(destroy$)).subscribe({
             next(curr) {
                 // create a new component if:
@@ -56,7 +55,8 @@ export const DynamicEntry = ():IDynamicEntry => {
                         (prev.type !== curr.type ||
                             !Object.is(prev.props.key, curr.props.key) ||
                             !Object.is(prev.props.xmlns, curr.props.xmlns) ||
-                            prev.props.children.length !== curr.props.children.length))
+                            prev.props.children.length !==
+                                curr.props.children.length))
                 ) {
                     if (component) {
                         component.destroy();
@@ -69,8 +69,12 @@ export const DynamicEntry = ():IDynamicEntry => {
                 component.update$.next(curr);
                 prev = curr;
             },
-            complete() { observer.complete() },
-            error(err) { observer.error(err) },
+            complete() {
+                observer.complete();
+            },
+            error(err) {
+                observer.error(err);
+            },
         });
     });
 
