@@ -65,8 +65,12 @@ export function splitPropsToStreams() {
                         propSubjectRegistry.delete(oldKey);
                     }
                 },
-                error(e) { observer.error(e); },
-                complete() { observer.complete(); },
+                error(e) {
+                    observer.error(e);
+                },
+                complete() {
+                    observer.complete();
+                },
             });
 
             // complete all streams on unsubscription
