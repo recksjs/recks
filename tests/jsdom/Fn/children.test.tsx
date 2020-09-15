@@ -1,26 +1,23 @@
 import { of, Subject } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { Recks } from '../../../src/index';
+import { createTestRoot } from '../helpers';
+
+// TODO: ensure param removal
+// <a b={1} c={2}/>
+// to
+// <a />
 
 describe('Children', () => {
-    let rootElement: HTMLElement;
-
-    beforeEach(() => {
-        rootElement = document.createElement('div');
-        document.body.appendChild(rootElement);
-    });
-
-    afterEach(() => {
-        document.body.removeChild(rootElement);
-    });
+    const root = createTestRoot();
 
     test('null to component', () => {
         const P = () => {
             return of(null, <span>one</span>, null, <span>two</span>);
         };
 
-        Recks.render(<P />, rootElement);
-        expect(rootElement.innerHTML).toBe('<span>two</span>');
+        Recks.render(<P />, root.el);
+        expect(root.el.innerHTML).toBe('<span>two</span>');
     });
 
     test('switching between children', () => {
@@ -43,20 +40,16 @@ describe('Children', () => {
             );
         };
 
-        Recks.render(<P />, rootElement);
-        expect(rootElement.children[0].children[1].innerHTML).toBe('');
+        Recks.render(<P />, root.el);
+        expect(root.el.children[0].children[1].innerHTML).toBe('');
         source$.next(true);
-        expect(rootElement.children[0].children[1].innerHTML).toBe(
-            '<h1>true</h1>',
-        );
+        expect(root.el.children[0].children[1].innerHTML).toBe('<h1>true</h1>');
         source$.next(false);
-        expect(rootElement.children[0].children[1].innerHTML).toBe(
+        expect(root.el.children[0].children[1].innerHTML).toBe(
             '<h1>false</h1>',
         );
         source$.next(true);
-        expect(rootElement.children[0].children[1].innerHTML).toBe(
-            '<h1>true</h1>',
-        );
+        expect(root.el.children[0].children[1].innerHTML).toBe('<h1>true</h1>');
     });
 
     describe('Observable params', () => {
@@ -66,14 +59,14 @@ describe('Children', () => {
 
                 const P = () => <span title={title$} />;
 
-                Recks.render(<P />, rootElement);
-                expect(rootElement.innerHTML).toBe('<span></span>');
+                Recks.render(<P />, root.el);
+                expect(root.el.innerHTML).toBe('<span></span>');
 
                 title$.next('a');
-                expect(rootElement.innerHTML).toBe('<span title="a"></span>');
+                expect(root.el.innerHTML).toBe('<span title="a"></span>');
 
                 title$.next('b');
-                expect(rootElement.innerHTML).toBe('<span title="b"></span>');
+                expect(root.el.innerHTML).toBe('<span title="b"></span>');
             });
 
             test('Mixed', () => {
@@ -84,38 +77,32 @@ describe('Children', () => {
                     <span title={title$} alt={alt$} data="data" hello="world" />
                 );
 
-                Recks.render(<P />, rootElement);
-                expect(rootElement.innerHTML).toBe(
+                Recks.render(<P />, root.el);
+                expect(root.el.innerHTML).toBe(
                     '<span data="data" hello="world"></span>',
                 );
 
                 title$.next('el-title');
-                expect(rootElement.innerHTML).toBe(
+                expect(root.el.innerHTML).toBe(
                     '<span data="data" hello="world" title="el-title"></span>',
                 );
 
                 alt$.next('alt text');
-                expect(rootElement.innerHTML).toBe(
+                expect(root.el.innerHTML).toBe(
                     '<span data="data" hello="world" title="el-title" alt="alt text"></span>',
                 );
             });
         });
 
-        // TODO: ensure param removal
-        // <a b={1} c={2}/>
-        // to
-        // <a />
-
-        describe('Fn components', () => {
+        // NOTE: this feature is not final
+        describe('EXPERIMENTAL: Fn components', () => {
             test('Static value', () => {
                 const C = ({ title }) => <span title={title}></span>;
                 const P = () => <C title="test" />;
 
-                Recks.render(<P />, rootElement);
+                Recks.render(<P />, root.el);
 
-                expect(rootElement.innerHTML).toBe(
-                    '<span title="test"></span>',
-                );
+                expect(root.el.innerHTML).toBe('<span title="test"></span>');
             });
 
             test('Dynamic value', () => {
@@ -125,15 +112,15 @@ describe('Children', () => {
 
                 const P = () => <C value={value$} />;
 
-                Recks.render(<P />, rootElement);
+                Recks.render(<P />, root.el);
 
-                expect(rootElement.innerHTML).toBe('<span></span>');
+                expect(root.el.innerHTML).toBe('<span></span>');
 
                 value$.next('a');
-                expect(rootElement.innerHTML).toBe('<span title="a"></span>');
+                expect(root.el.innerHTML).toBe('<span title="a"></span>');
 
                 value$.next('b');
-                expect(rootElement.innerHTML).toBe('<span title="b"></span>');
+                expect(root.el.innerHTML).toBe('<span title="b"></span>');
             });
         });
     });

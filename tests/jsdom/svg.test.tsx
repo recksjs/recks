@@ -1,15 +1,13 @@
-import { Recks } from '../../src/index';
 import { Subject } from 'rxjs';
+import { Recks } from '../../src/index';
+import { createTestRoot } from './helpers';
 
 describe('SVG support', () => {
-    let rootElement: HTMLElement;
+    const root = createTestRoot();
     let App$: Subject<any>;
     const App = () => App$;
 
     beforeEach(() => {
-        rootElement = document.createElement('div');
-        document.body.appendChild(rootElement);
-
         if (App$) {
             App$.complete();
         }
@@ -17,27 +15,23 @@ describe('SVG support', () => {
         App$ = new Subject();
     });
 
-    afterEach(() => {
-        document.body.removeChild(rootElement);
-    });
-
     test('Should render svg using xmlns', () => {
-        Recks.render(<App />, rootElement);
+        Recks.render(<App />, root.el);
         App$.next(
             <svg xmlns="http://www.w3.org/2000/svg">
                 <circle />
             </svg>,
         );
-        expect(rootElement.children[0].namespaceURI).toBe(
+        expect(root.el.children[0].namespaceURI).toBe(
             'http://www.w3.org/2000/svg',
         );
-        expect(rootElement.children[0].children[0].namespaceURI).toBe(
+        expect(root.el.children[0].children[0].namespaceURI).toBe(
             'http://www.w3.org/2000/svg',
         );
     });
 
     test('Should render foreignObject children using default xmlns', () => {
-        Recks.render(<App />, rootElement);
+        Recks.render(<App />, root.el);
         App$.next(
             <svg xmlns="http://www.w3.org/2000/svg">
                 <foreignObject>
@@ -45,14 +39,14 @@ describe('SVG support', () => {
                 </foreignObject>
             </svg>,
         );
-        expect(rootElement.children[0].namespaceURI).toBe(
+        expect(root.el.children[0].namespaceURI).toBe(
             'http://www.w3.org/2000/svg',
         );
-        expect(rootElement.children[0].children[0].namespaceURI).toBe(
+        expect(root.el.children[0].children[0].namespaceURI).toBe(
             'http://www.w3.org/2000/svg',
         );
-        expect(
-            rootElement.children[0].children[0].children[0].namespaceURI,
-        ).toBe('http://www.w3.org/1999/xhtml');
+        expect(root.el.children[0].children[0].children[0].namespaceURI).toBe(
+            'http://www.w3.org/1999/xhtml',
+        );
     });
 });
