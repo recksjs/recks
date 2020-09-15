@@ -1,6 +1,6 @@
 import { of, Subject } from 'rxjs';
 import { Recks } from '../../src/index';
-import { createTestRoot } from './helpers';
+import { clickOn, createTestRoot } from './helpers';
 
 describe('Static', () => {
     const root = createTestRoot();
@@ -13,6 +13,23 @@ describe('Static', () => {
     test('With attribute', () => {
         Recks.render(<div title="So">Ho</div>, root.el);
         expect(root.el.innerHTML).toBe('<div title="So">Ho</div>');
+    });
+
+    test('Event', () => {
+        const onClick = jest.fn();
+        Recks.render(<button onClick={onClick}>test</button>, root.el);
+        expect(root.el.innerHTML).toBe('<button>test</button>');
+        clickOn(root.el.children[0]);
+        expect(onClick.mock.calls.length).toBe(1);
+        expect(root.el.innerHTML).toBe('<button>test</button>');
+    });
+
+    test('Ref', () => {
+        const ref$ = { next: jest.fn() };
+        Recks.render(<h1 ref={ref$}>Title</h1>, root.el);
+        expect(root.el.innerHTML).toBe('<h1>Title</h1>');
+        expect(ref$.next.mock.calls.length).toBe(1);
+        expect(ref$.next.mock.calls[0][0]).toBe(root.el.children[0]);
     });
 
     describe('Observable', () => {

@@ -6,89 +6,82 @@ import { clickOn, createTestRoot } from '../helpers';
 describe('Props', () => {
     const root = createTestRoot();
 
-    test('vDOM on root with props', () => {
-        Recks.render(<div title="Hello">World</div>, root.el);
-        expect(root.el.innerHTML).toBe('<div title="Hello">World</div>');
-    });
+    describe('Static', () => {
+        let App$: Subject<any>;
+        const App = () => App$;
 
-    describe('vDOM', () => {
-        describe('initial render', () => {
-            let App$: Subject<any>;
-            const App = () => App$;
+        beforeEach(() => {
+            if (App$) {
+                App$.complete();
+            }
+            App$ = new Subject();
+        });
 
-            beforeEach(() => {
-                if (App$) {
-                    App$.complete();
-                }
-                App$ = new Subject();
-            });
+        test('Static props', () => {
+            Recks.render(<App />, root.el);
+            App$.next(<div title="Yellow">Submarine</div>);
+            const divElement = root.el.children[0];
+            expect(divElement.innerHTML).toBe('Submarine');
+            expect(divElement.getAttribute('title')).toBe('Yellow');
+            App$.next(<div alt="alt">Submarine</div>);
+            expect(divElement.getAttribute('title')).toBe(null);
+            expect(divElement.getAttribute('alt')).toBe('alt');
+        });
 
-            test('Static props', () => {
+        test('Output props as function', () => {
+            const onClick = jest.fn();
+            Recks.render(<App />, root.el);
+            App$.next(<button onClick={onClick}>Click me!</button>);
+
+            clickOn(root.el.children[0]);
+            expect(onClick.mock.calls.length).toBe(1);
+
+            clickOn(root.el.children[0]);
+            expect(onClick.mock.calls.length).toBe(2);
+
+            App$.next(<button>Don't click me!</button>);
+            clickOn(root.el.children[0]);
+            expect(onClick.mock.calls.length).toBe(2);
+        });
+
+        test('Output props as function: subsequent update', () => {
+            const onClick = jest.fn();
+            Recks.render(<App />, root.el);
+            App$.next(<button>Click me!</button>);
+
+            clickOn(root.el.children[0]);
+            expect(onClick.mock.calls.length).toBe(0);
+
+            App$.next(<button onClick={onClick}>Click me!</button>);
+
+            clickOn(root.el.children[0]);
+            expect(onClick.mock.calls.length).toBe(1);
+        });
+
+        describe('Output props as Observable', () => {
+            test('Basic case', () => {
+                const one = jest.fn();
+                const two = jest.fn();
+                const onClick$ = new Subject();
+
                 Recks.render(<App />, root.el);
-                App$.next(<div title="Yellow">Submarine</div>);
-                const divElement = root.el.children[0];
-                expect(divElement.innerHTML).toBe('Submarine');
-                expect(divElement.getAttribute('title')).toBe('Yellow');
-                App$.next(<div alt="alt">Submarine</div>);
-                expect(divElement.getAttribute('title')).toBe(null);
-                expect(divElement.getAttribute('alt')).toBe('alt');
-            });
-
-            test('Output props as function', () => {
-                const onClick = jest.fn();
-                Recks.render(<App />, root.el);
-                App$.next(<button onClick={onClick}>Click me!</button>);
+                App$.next(<button onClick={onClick$}>Click me!</button>);
 
                 clickOn(root.el.children[0]);
-                expect(onClick.mock.calls.length).toBe(1);
 
+                expect(one.mock.calls.length).toBe(0);
+                expect(two.mock.calls.length).toBe(0);
+
+                onClick$.next(one);
                 clickOn(root.el.children[0]);
-                expect(onClick.mock.calls.length).toBe(2);
 
-                App$.next(<button>Don't click me!</button>);
+                expect(one.mock.calls.length).toBe(1);
+                expect(two.mock.calls.length).toBe(0);
+
+                onClick$.next(two);
                 clickOn(root.el.children[0]);
-                expect(onClick.mock.calls.length).toBe(2);
-            });
-
-            test('Output props as function: subsequent update', () => {
-                const onClick = jest.fn();
-                Recks.render(<App />, root.el);
-                App$.next(<button>Click me!</button>);
-
-                clickOn(root.el.children[0]);
-                expect(onClick.mock.calls.length).toBe(0);
-
-                App$.next(<button onClick={onClick}>Click me!</button>);
-
-                clickOn(root.el.children[0]);
-                expect(onClick.mock.calls.length).toBe(1);
-            });
-
-            describe('Output props as Observable', () => {
-                test('Basic case', () => {
-                    const one = jest.fn();
-                    const two = jest.fn();
-                    const onClick$ = new Subject();
-
-                    Recks.render(<App />, root.el);
-                    App$.next(<button onClick={onClick$}>Click me!</button>);
-
-                    clickOn(root.el.children[0]);
-
-                    expect(one.mock.calls.length).toBe(0);
-                    expect(two.mock.calls.length).toBe(0);
-
-                    onClick$.next(one);
-                    clickOn(root.el.children[0]);
-
-                    expect(one.mock.calls.length).toBe(1);
-                    expect(two.mock.calls.length).toBe(0);
-
-                    onClick$.next(two);
-                    clickOn(root.el.children[0]);
-                    expect(one.mock.calls.length).toBe(1);
-                    expect(two.mock.calls.length).toBe(1);
-                });
+                expect(one.mock.calls.length).toBe(1);
+                expect(two.mock.calls.length).toBe(1);
             });
         });
     });
