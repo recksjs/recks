@@ -28,6 +28,17 @@ describe('Props', () => {
             expect(divElement.getAttribute('alt')).toBe('alt');
         });
 
+        test('Observable props update ONLY', () => {
+            const title$ = new Subject();
+            Recks.render(<App />, root.el);
+            App$.next(<h1 title={title$}>Hello</h1>);
+            expect(root.el.innerHTML).toBe('<h1>Hello</h1>');
+            title$.next('YOLO');
+            expect(root.el.innerHTML).toBe('<h1 title="YOLO">Hello</h1>');
+            App$.next(<h1>Hello</h1>);
+            expect(root.el.innerHTML).toBe('<h1>Hello</h1>');
+        });
+
         test('Output props as function', () => {
             const onClick = jest.fn();
             Recks.render(<App />, root.el);
@@ -58,31 +69,34 @@ describe('Props', () => {
             expect(onClick.mock.calls.length).toBe(1);
         });
 
-        describe('Output props as Observable', () => {
-            test('Basic case', () => {
-                const one = jest.fn();
-                const two = jest.fn();
-                const onClick$ = new Subject();
+        test('Output props as Observable', () => {
+            const one = jest.fn();
+            const two = jest.fn();
+            const onClick$ = new Subject();
 
-                Recks.render(<App />, root.el);
-                App$.next(<button onClick={onClick$}>Click me!</button>);
+            Recks.render(<App />, root.el);
+            App$.next(<button onClick={onClick$}>Click me!</button>);
 
-                clickOn(root.el.children[0]);
+            clickOn(root.el.children[0]);
 
-                expect(one.mock.calls.length).toBe(0);
-                expect(two.mock.calls.length).toBe(0);
+            expect(one.mock.calls.length).toBe(0);
+            expect(two.mock.calls.length).toBe(0);
 
-                onClick$.next(one);
-                clickOn(root.el.children[0]);
+            onClick$.next(one);
+            clickOn(root.el.children[0]);
 
-                expect(one.mock.calls.length).toBe(1);
-                expect(two.mock.calls.length).toBe(0);
+            expect(one.mock.calls.length).toBe(1);
+            expect(two.mock.calls.length).toBe(0);
 
-                onClick$.next(two);
-                clickOn(root.el.children[0]);
-                expect(one.mock.calls.length).toBe(1);
-                expect(two.mock.calls.length).toBe(1);
-            });
+            onClick$.next(two);
+            clickOn(root.el.children[0]);
+            expect(one.mock.calls.length).toBe(1);
+            expect(two.mock.calls.length).toBe(1);
+
+            App$.next(<button>Click me!</button>);
+            clickOn(root.el.children[0]);
+            expect(one.mock.calls.length).toBe(1);
+            expect(two.mock.calls.length).toBe(1);
         });
     });
 
@@ -100,6 +114,36 @@ describe('Props', () => {
 
             Recks.render(<App />, root.el);
             expect(root.el.children[0].innerHTML).toBe('Morning:string');
+        });
+
+        // NOTE: this feature is not final
+        describe('EXPERIMENTAL: Fn components', () => {
+            test('Static value', () => {
+                const C = ({ title }) => <span title={title}></span>;
+                const P = () => <C title="test" />;
+
+                Recks.render(<P />, root.el);
+
+                expect(root.el.innerHTML).toBe('<span title="test"></span>');
+            });
+
+            test('Dynamic value', () => {
+                const value$ = new Subject();
+
+                const C = ({ value }) => <span title={value}></span>;
+
+                const P = () => <C value={value$} />;
+
+                Recks.render(<P />, root.el);
+
+                expect(root.el.innerHTML).toBe('<span></span>');
+
+                value$.next('a');
+                expect(root.el.innerHTML).toBe('<span title="a"></span>');
+
+                value$.next('b');
+                expect(root.el.innerHTML).toBe('<span title="b"></span>');
+            });
         });
     });
 });

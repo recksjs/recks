@@ -1,6 +1,7 @@
 import { isObservable, Observable, of, Subject } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, takeUntil } from 'rxjs/operators';
 import { IProps } from '../engine/Element';
+import { createDestroyer } from './destroyer';
 
 /**
  * Operator to split a stream of Objects into it's individual property streams
@@ -30,27 +31,34 @@ export function splitPropsToStreams() {
         new Observable<Observable<any>>((observer) => {
             const propSubjectRegistry = new Map<
                 string,
-                Subject<Observable<any>>
+                {
+                    destroy: () => void;
+                    source$: Subject<Observable<any>>;
+                }
             >();
             const subscription = source$.subscribe({
                 next(change) {
                     const changeEntries = Object.entries(change);
                     for (let [key, value] of changeEntries) {
-                        let stream: Subject<Observable<any>>;
+                        let source$: Subject<Observable<any>>;
 
                         if (!propSubjectRegistry.has(key)) {
-                            stream = new Subject<Observable<any>>();
-                            propSubjectRegistry.set(key, stream);
-                            const propStream = stream.pipe(switchMap((o) => o));
+                            source$ = new Subject<Observable<any>>();
+                            const [destroy, destroy$] = createDestroyer();
+                            propSubjectRegistry.set(key, { destroy, source$ });
+                            const propStream = source$.pipe(
+                                switchMap((o) => o),
+                                takeUntil(destroy$),
+                            );
                             propStream['key'] = key;
                             observer.next(propStream);
                         }
 
-                        if (!stream) {
-                            stream = propSubjectRegistry.get(key);
+                        if (!source$) {
+                            source$ = propSubjectRegistry.get(key).source$;
                         }
 
-                        stream.next(isObservable(value) ? value : of(value));
+                        source$.next(isObservable(value) ? value : of(value));
                     }
 
                     for (let oldKey of propSubjectRegistry.keys()) {
@@ -58,10 +66,11 @@ export function splitPropsToStreams() {
                             continue;
                         }
 
-                        const deprecatedStream = propSubjectRegistry.get(
+                        const { destroy, source$ } = propSubjectRegistry.get(
                             oldKey,
                         );
-                        deprecatedStream.complete();
+                        source$.complete();
+                        destroy();
                         propSubjectRegistry.delete(oldKey);
                     }
                 },
@@ -75,7 +84,12 @@ export function splitPropsToStreams() {
 
             // complete all streams on unsubscription
             subscription.add(() => {
-                [...propSubjectRegistry.values()].forEach((v) => v.complete());
+                [...propSubjectRegistry.values()].forEach(
+                    ({ destroy, source$ }) => {
+                        source$.complete();
+                        destroy();
+                    },
+                );
             });
 
             return subscription;
