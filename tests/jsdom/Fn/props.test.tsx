@@ -28,28 +28,41 @@ describe('Props', () => {
             expect(divElement.getAttribute('alt')).toBe('alt');
         });
 
-        test('Observable props update ONLY', () => {
+        test('Observable props update', () => {
             const title$ = new Subject();
             Recks.render(<App />, root.el);
+
+            // observable attr w/o value
             App$.next(<h1 title={title$}>Hello</h1>);
             expect(root.el.innerHTML).toBe('<h1>Hello</h1>');
+
+            // send a value
             title$.next('YOLO');
             expect(root.el.innerHTML).toBe('<h1 title="YOLO">Hello</h1>');
+
+            // remove observable
             App$.next(<h1>Hello</h1>);
+            expect(root.el.innerHTML).toBe('<h1>Hello</h1>');
+
+            // update observable removed attr observable
+            title$.next('UPD');
             expect(root.el.innerHTML).toBe('<h1>Hello</h1>');
         });
 
         test('Output props as function', () => {
             const onClick = jest.fn();
             Recks.render(<App />, root.el);
-            App$.next(<button onClick={onClick}>Click me!</button>);
 
+            // has click handler
+            App$.next(<button onClick={onClick}>Click me!</button>);
             clickOn(root.el.children[0]);
             expect(onClick.mock.calls.length).toBe(1);
 
+            // click 2nd time
             clickOn(root.el.children[0]);
             expect(onClick.mock.calls.length).toBe(2);
 
+            // no handler
             App$.next(<button>Don't click me!</button>);
             clickOn(root.el.children[0]);
             expect(onClick.mock.calls.length).toBe(2);
@@ -58,15 +71,21 @@ describe('Props', () => {
         test('Output props as function: subsequent update', () => {
             const onClick = jest.fn();
             Recks.render(<App />, root.el);
-            App$.next(<button>Click me!</button>);
 
+            // no handler
+            App$.next(<button>Click me!</button>);
             clickOn(root.el.children[0]);
             expect(onClick.mock.calls.length).toBe(0);
 
+            // got handler
             App$.next(<button onClick={onClick}>Click me!</button>);
-
             clickOn(root.el.children[0]);
             expect(onClick.mock.calls.length).toBe(1);
+
+            // same handler
+            App$.next(<button onClick={onClick}>Click me!</button>);
+            clickOn(root.el.children[0]);
+            expect(onClick.mock.calls.length).toBe(2);
         });
 
         test('Output props as Observable', () => {
