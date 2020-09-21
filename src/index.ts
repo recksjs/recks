@@ -9,7 +9,7 @@ declare namespace Recks {
         type LibraryManagedAttributes<
             Component,
             Props
-            > = Props extends Observable<infer O> ? O : Props;
+        > = Props extends Observable<infer O> ? O : Props;
     }
 }
 
