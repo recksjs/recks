@@ -1,3 +1,4 @@
+import { Observable } from 'rxjs';
 import { pluck } from 'rxjs/operators';
 import { Recks } from '../../../src/index';
 import { createTestRoot } from '../helpers';
@@ -32,7 +33,9 @@ describe('Fn', () => {
     });
 
     test('Fn', () => {
-        const Child = (props$) => <span>{props$.pipe(pluck('title'))}</span>;
+        const Child = (props$: Observable<{ title: string }>) => (
+            <span>{props$.pipe(pluck('title'))}</span>
+        );
         const App = () => <Child title="Hello" />;
         Recks.render(<App />, root.el);
         expect(root.el.innerHTML).toBe('<span>Hello</span>');
