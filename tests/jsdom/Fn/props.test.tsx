@@ -134,35 +134,5 @@ describe('Props', () => {
             Recks.render(<App />, root.el);
             expect(root.el.children[0].innerHTML).toBe('Morning:string');
         });
-
-        // NOTE: this feature is not final
-        describe('EXPERIMENTAL: Fn components', () => {
-            test('Static value', () => {
-                const C = ({ title }) => <span title={title}></span>;
-                const P = () => <C title="test" />;
-
-                Recks.render(<P />, root.el);
-
-                expect(root.el.innerHTML).toBe('<span title="test"></span>');
-            });
-
-            test('Dynamic value', () => {
-                const value$ = new Subject();
-
-                const C = ({ value }) => <span title={value}></span>;
-
-                const P = () => <C value={value$} />;
-
-                Recks.render(<P />, root.el);
-
-                expect(root.el.innerHTML).toBe('<span></span>');
-
-                value$.next('a');
-                expect(root.el.innerHTML).toBe('<span title="a"></span>');
-
-                value$.next('b');
-                expect(root.el.innerHTML).toBe('<span title="b"></span>');
-            });
-        });
     });
 });
