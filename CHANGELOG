@@ -4,10 +4,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.14] - ...
-
+## [0.0.14] - 2020-09-21
 ### Added
 - support for Observables in static nodes attributes, e.g. `<img src={ stream$ } />`
+- Basic TS typings for JSX
+
+## [0.0.13] - 2020-07-22
+### Fixed
+- fixing error propagation and complete for static comp
+
+## [0.0.12] - 2020-07-22
+### Fixed
+- [chore] np publishing flow
+
+## [0.0.11] - 2020-07-22
+### Fixed
+- [chore] np publishing flow
+
+## [0.0.10] - 2020-07-22
+### Fixed
+- fixed null -> component switch
 
 ## [0.0.9] - 2020-07-20
 ### Changed
