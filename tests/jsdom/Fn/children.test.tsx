@@ -3,11 +3,6 @@ import { map, startWith } from 'rxjs/operators';
 import { Recks } from '../../../src/index';
 import { createTestRoot } from '../helpers';
 
-// TODO: ensure param removal
-// <a b={1} c={2}/>
-// to
-// <a />
-
 describe('Children', () => {
     const root = createTestRoot();
 
