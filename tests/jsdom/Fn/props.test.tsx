@@ -1,4 +1,4 @@
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Recks } from '../../../src/index';
 import { clickOn, createTestRoot } from '../helpers';
@@ -121,7 +121,7 @@ describe('Props', () => {
 
     describe('Subcomponents', () => {
         test('Static props', () => {
-            const Child = (props$) =>
+            const Child = (props$: Observable<{ title: string }>) =>
                 props$.pipe(
                     map((props: any) => (
                         <div>
